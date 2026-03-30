@@ -30,11 +30,11 @@
 
 ## GitHub Pages 배포
 
+**라이브 사이트:** [https://m1zz.github.io/vibecoding-camp/](https://m1zz.github.io/vibecoding-camp/)
+
 ```
 Settings → Pages → Source: Deploy from a branch → Branch: main / (root) → Save
 ```
-
-배포 후: `https://{username}.github.io/{repo-name}/`
 
 ---
 
