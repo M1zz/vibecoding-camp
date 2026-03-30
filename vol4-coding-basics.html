@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>바이브코딩 훈련소 Vol.4 — 코딩 기초 연결</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0804;
+    --surface: #141008;
+    --surface2: #1c1810;
+    --border: #2a2415;
+    --accent: #fb923c;
+    --accent2: #fbbf24;
+    --accent3: #a3e635;
+    --text: #f5ede0;
+    --text-muted: #7a6848;
+    --text-dim: #2e2416;
+    --font-display: 'Black Han Sans', sans-serif;
+    --font-body: 'Noto Sans KR', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body { background: var(--bg); color: var(--text); font-family: var(--font-body); line-height: 1.7; }
+
+  .progress-wrap { position: fixed; top: 0; left: 0; right: 0; height: 3px; background: var(--surface2); z-index: 9999; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent2), var(--accent)); width: 0%; transition: width 0.3s; }
+
+  /* COVER */
+  .cover {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 60px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cover-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 80% 50%, rgba(251,146,60,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse at 20% 80%, rgba(251,191,36,0.04) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  .cover-content { position: relative; z-index: 1; max-width: 600px; }
+
+  .vol-badge {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid var(--border);
+    padding: 6px 14px;
+  }
+
+  .cover-title {
+    font-family: var(--font-display);
+    font-size: clamp(48px, 8vw, 96px);
+    line-height: 0.95;
+    margin-bottom: 28px;
+  }
+
+  .cover-title .l1 { color: var(--text); display: block; }
+  .cover-title .l2 { color: var(--accent); display: block; text-shadow: 0 0 40px rgba(251,146,60,0.35); }
+
+  .cover-quote {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--accent3);
+    padding: 16px 20px;
+    border-left: 3px solid var(--accent3);
+    background: rgba(163,230,53,0.04);
+    margin-bottom: 32px;
+    line-height: 1.7;
+  }
+
+  .cover-desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.9;
+    margin-bottom: 36px;
+  }
+
+  .cover-stats {
+    display: grid;
+    grid-template-columns: repeat(4, auto);
+    width: fit-content;
+    border: 1px solid var(--border);
+  }
+
+  .cstat {
+    padding: 12px 18px;
+    border-right: 1px solid var(--border);
+    font-family: var(--font-mono);
+  }
+
+  .cstat:last-child { border-right: none; }
+  .cstat-k { font-size: 9px; letter-spacing: 2px; color: var(--text-muted); text-transform: uppercase; display: block; }
+  .cstat-v { font-size: 13px; color: var(--accent); }
+
+  /* BIG TEXT */
+  .big-bg {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: var(--font-display);
+    font-size: clamp(140px, 22vw, 260px);
+    color: var(--accent);
+    opacity: 0.04;
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  /* SECTIONS */
+  .section { max-width: 840px; margin: 0 auto; padding: 80px 48px; }
+
+  .sec-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .sec-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .sec-title { font-family: var(--font-display); font-size: clamp(26px, 4vw, 42px); line-height: 1.15; margin-bottom: 12px; }
+  .sec-title em { color: var(--accent); font-style: normal; }
+
+  .sec-desc { font-size: 14px; color: var(--text-muted); line-height: 1.9; margin-bottom: 36px; }
+
+  .divider { max-width: 840px; margin: 0 auto; padding: 0 48px; }
+  .divider-line { height: 1px; background: linear-gradient(90deg, var(--accent) 0%, transparent 60%); }
+
+  /* CODE CONCEPT CARDS */
+  .concept-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .concept-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .concept-card:hover { border-color: rgba(251,146,60,0.2); }
+
+  .concept-top {
+    background: var(--surface2);
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .concept-icon { font-size: 18px; }
+  .concept-name { font-family: var(--font-display); font-size: 17px; }
+  .concept-tag {
+    margin-left: auto;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: var(--accent2);
+    border: 1px solid var(--accent2);
+    padding: 2px 6px;
+    text-transform: uppercase;
+    opacity: 0.6;
+  }
+
+  .concept-body { padding: 14px 18px; }
+
+  .concept-code {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-muted);
+    background: var(--surface2);
+    padding: 10px 12px;
+    line-height: 1.7;
+    margin-bottom: 8px;
+    border: 1px solid var(--border);
+  }
+
+  .concept-code .kw { color: var(--accent); }
+  .concept-code .str { color: var(--accent3); }
+  .concept-code .num { color: var(--accent2); }
+  .concept-code .cmt { color: var(--text-muted); font-style: italic; }
+
+  .concept-explain {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.7;
+    padding-left: 10px;
+    border-left: 2px solid var(--border);
+  }
+
+  /* EXERCISE */
+  .exercise-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--accent2);
+    padding: 28px;
+    margin: 24px 0;
+  }
+
+  .ex-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+  .ex-num { font-family: var(--font-mono); font-size: 10px; letter-spacing: 2px; background: var(--accent2); color: var(--bg); padding: 3px 10px; text-transform: uppercase; }
+  .ex-title { font-family: var(--font-display); font-size: 18px; }
+
+  .ex-prompt {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    padding: 16px 18px;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.8;
+    margin-bottom: 20px;
+  }
+
+  .ex-prompt .prompt-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  textarea, input[type="text"] {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 14px;
+    padding: 12px 16px;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s;
+    line-height: 1.7;
+  }
+
+  textarea:focus, input[type="text"]:focus { border-color: var(--accent); }
+  textarea::placeholder, input[type="text"]::placeholder { color: var(--text-dim); font-size: 13px; }
+
+  .field-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .field-label::before { content: '▸'; color: var(--accent2); }
+
+  .char-count { text-align: right; font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); margin-top: 4px; }
+
+  /* ERROR ANATOMY */
+  .error-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  .error-header {
+    background: rgba(239,68,68,0.1);
+    border-bottom: 1px solid rgba(239,68,68,0.2);
+    padding: 10px 16px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: #ef4444;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .error-body { padding: 16px 18px; }
+
+  .error-msg {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: #ef4444;
+    padding: 10px 14px;
+    background: rgba(239,68,68,0.06);
+    border: 1px solid rgba(239,68,68,0.15);
+    margin-bottom: 12px;
+    line-height: 1.7;
+  }
+
+  .error-decode {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .decode-row {
+    display: flex;
+    gap: 12px;
+    font-size: 13px;
+  }
+
+  .decode-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--accent2);
+    text-transform: uppercase;
+    min-width: 70px;
+    padding-top: 2px;
+  }
+
+  .decode-text { color: var(--text-muted); line-height: 1.7; }
+
+  /* CHECKLIST */
+  .checklist { display: flex; flex-direction: column; gap: 8px; }
+
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .check-item:hover { border-color: rgba(251,146,60,0.2); }
+  .check-item.checked { border-color: rgba(251,146,60,0.3); background: rgba(251,146,60,0.04); color: var(--text); }
+
+  .check-box {
+    width: 18px;
+    height: 18px;
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    transition: all 0.15s;
+    margin-top: 1px;
+  }
+
+  .check-item.checked .check-box { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+
+  /* INFO BOX */
+  .info-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent3);
+    padding: 18px 22px;
+    margin: 24px 0;
+  }
+
+  .info-title { font-family: var(--font-mono); font-size: 10px; letter-spacing: 2px; color: var(--accent3); text-transform: uppercase; margin-bottom: 8px; }
+  .info-box p { font-size: 13px; color: var(--text-muted); line-height: 1.8; }
+  .info-box strong { color: var(--text); }
+
+  /* BTN */
+  .btn-primary {
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    padding: 14px 28px;
+    font-family: var(--font-display);
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 24px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-primary:hover { filter: brightness(1.15); transform: translateY(-1px); }
+
+  /* COMPLETION */
+  .completion { max-width: 840px; margin: 0 auto; padding: 80px 48px; display: none; }
+  .completion-title { font-family: var(--font-display); font-size: clamp(36px, 6vw, 64px); line-height: 1.1; margin-bottom: 20px; }
+  .completion-title .hl { color: var(--accent); }
+
+  .next-row { display: flex; gap: 12px; margin-top: 28px; flex-wrap: wrap; }
+  .next-chip { background: var(--surface); border: 1px solid var(--border); padding: 14px 20px; font-size: 13px; color: var(--text-muted); }
+  .next-chip.rec { border-color: var(--accent); background: rgba(251,146,60,0.04); color: var(--text); }
+  .chip-num { font-family: var(--font-mono); font-size: 9px; letter-spacing: 2px; color: var(--text-dim); display: block; margin-bottom: 4px; text-transform: uppercase; }
+  .next-chip.rec .chip-num { color: var(--accent); }
+  .chip-name { font-family: var(--font-display); font-size: 18px; }
+
+  @media (max-width: 640px) {
+    .cover { padding: 40px 24px; }
+    .section { padding: 60px 24px; }
+    .completion { padding: 60px 24px; }
+    .concept-grid { grid-template-columns: 1fr; }
+    .cover-stats { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="progress-wrap"><div class="progress-fill" id="progressBar"></div></div>
+
+<!-- COVER -->
+<section class="cover" id="cover">
+  <div class="cover-bg"></div>
+  <div class="big-bg">4</div>
+  <div class="cover-content">
+    <div class="vol-badge">바이브코딩 훈련소 · Vol.4</div>
+    <h1 class="cover-title">
+      <span class="l1">결국</span>
+      <span class="l2">코딩이다</span>
+    </h1>
+    <div class="cover-quote">
+      "결국 코딩이라서 그걸 못하면 AI도 못 쓸 거에요." — 리이오
+    </div>
+    <p class="cover-desc">
+      코딩을 완전히 몰라도 된다.<br>
+      단, AI가 뱉은 코드의 흐름을 읽고,<br>
+      오류 메시지가 무슨 말인지는 알아야 한다.<br>
+      그것만 있으면 AI와 함께 갈 수 있다.
+    </p>
+    <div class="cover-stats">
+      <div class="cstat"><span class="cstat-k">예상 시간</span><span class="cstat-v">40–50분</span></div>
+      <div class="cstat"><span class="cstat-k">전제</span><span class="cstat-v">Vol.0–3 권장</span></div>
+      <div class="cstat"><span class="cstat-k">코딩 경험</span><span class="cstat-v">0 이상</span></div>
+      <div class="cstat"><span class="cstat-k">다음</span><span class="cstat-v">Vol.5 실전</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 1 — 최소 리터러시 -->
+<div class="divider"><div class="divider-line"></div></div>
+
+<section class="section" id="s1">
+  <div class="sec-label">01 · 개념</div>
+  <h2 class="sec-title">AI 활용에 필요한 <em>최소한의 코딩</em></h2>
+  <p class="sec-desc">
+    전체를 다 알 필요는 없다. 아래 4가지 개념만 이해해도 AI 코드를 80% 이상 읽을 수 있다.<br>
+    각 개념과 그 코드가 AI 응답에서 어떻게 나타나는지 파악한다.
+  </p>
+
+  <div class="concept-grid">
+    <div class="concept-card">
+      <div class="concept-top">
+        <div class="concept-icon">📦</div>
+        <div class="concept-name">변수</div>
+        <div class="concept-tag">기본</div>
+      </div>
+      <div class="concept-body">
+        <div class="concept-code">
+          <span class="kw">let</span> name = <span class="str">"홍길동"</span><br>
+          <span class="kw">var</span> count = <span class="num">0</span><br>
+          count = <span class="num">5</span> <span class="cmt">// 바꿀 수 있음</span>
+        </div>
+        <div class="concept-explain">
+          데이터를 담는 이름표. let은 한 번 정하면 변경 불가, var는 변경 가능.
+          AI가 변수 이름을 잘 지어줘도, 의미는 내가 파악해야 한다.
+        </div>
+      </div>
+    </div>
+
+    <div class="concept-card">
+      <div class="concept-top">
+        <div class="concept-icon">🔧</div>
+        <div class="concept-name">함수</div>
+        <div class="concept-tag">핵심</div>
+      </div>
+      <div class="concept-body">
+        <div class="concept-code">
+          <span class="kw">func</span> greet(name: String) {<br>
+          &nbsp;&nbsp;print(<span class="str">"안녕, \(name)"</span>)<br>
+          }<br>
+          greet(name: <span class="str">"리이오"</span>)
+        </div>
+        <div class="concept-explain">
+          반복되는 작업을 묶어놓은 것. 호출하면 실행된다.
+          AI가 함수를 여러 개 만들어줬다면, 각 함수가 무슨 역할인지만 파악한다.
+        </div>
+      </div>
+    </div>
+
+    <div class="concept-card">
+      <div class="concept-top">
+        <div class="concept-icon">🔀</div>
+        <div class="concept-name">조건</div>
+        <div class="concept-tag">분기</div>
+      </div>
+      <div class="concept-body">
+        <div class="concept-code">
+          <span class="kw">if</span> isLoggedIn {<br>
+          &nbsp;&nbsp;showHome()<br>
+          } <span class="kw">else</span> {<br>
+          &nbsp;&nbsp;showLogin()<br>
+          }
+        </div>
+        <div class="concept-explain">
+          "만약 ~ 라면 A, 아니면 B". 코드의 분기점.
+          조건문이 중첩될수록 복잡해진다. 각 분기가 언제 실행되는지 확인한다.
+        </div>
+      </div>
+    </div>
+
+    <div class="concept-card">
+      <div class="concept-top">
+        <div class="concept-icon">🔁</div>
+        <div class="concept-name">반복</div>
+        <div class="concept-tag">루프</div>
+      </div>
+      <div class="concept-body">
+        <div class="concept-code">
+          <span class="kw">for</span> item <span class="kw">in</span> items {<br>
+          &nbsp;&nbsp;print(item)<br>
+          }<br>
+          <span class="cmt">// items의 모든 것을 순서대로</span>
+        </div>
+        <div class="concept-explain">
+          같은 작업을 여러 번 반복. 목록을 처리할 때 항상 나타난다.
+          "언제 멈추는가"를 확인한다.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="exercise-box">
+    <div class="ex-header">
+      <div class="ex-num">실습 A</div>
+      <div class="ex-title">AI 코드 흐름 읽기</div>
+    </div>
+    <div class="ex-prompt">
+      <span class="prompt-label">주어진 코드</span>
+      아래 코드를 보고 물음에 답한다. 코딩을 몰라도 추측해서 쓴다.
+    </div>
+
+    <div style="background: var(--surface2); border: 1px solid var(--border); padding: 16px 20px; margin-bottom: 20px; font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); line-height: 1.9;">
+      <span style="color: var(--accent);">func</span> filterTodos(_ todos: [Todo]) -> [Todo] {<br>
+      &nbsp;&nbsp;<span style="color: var(--accent);">var</span> result: [Todo] = []<br>
+      &nbsp;&nbsp;<span style="color: var(--accent);">for</span> todo <span style="color: var(--accent);">in</span> todos {<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: var(--accent);">if</span> !todo.isCompleted {<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result.append(todo)<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;}<br>
+      &nbsp;&nbsp;}<br>
+      &nbsp;&nbsp;<span style="color: var(--accent);">return</span> result<br>
+      }
+    </div>
+
+    <div class="field-label">이 함수는 무슨 역할을 하는가? (한 줄로)</div>
+    <input type="text" id="ex_a_role" placeholder="추측해서 써도 된다..." oninput="updateProgress()">
+
+    <div class="field-label">for 루프가 하는 일은?</div>
+    <input type="text" id="ex_a_loop" placeholder="" oninput="updateProgress()">
+
+    <div class="field-label">if !todo.isCompleted 의 의미는?</div>
+    <input type="text" id="ex_a_if" placeholder="! 는 '아닌' 이라는 뜻이다..." oninput="updateProgress()">
+  </div>
+</section>
+
+<!-- SECTION 2 — 에러 읽기 -->
+<div class="divider"><div class="divider-line"></div></div>
+
+<section class="section" id="s2">
+  <div class="sec-label">02 · 오류</div>
+  <h2 class="sec-title">에러 메시지를 <em>AI에게 잘 전달하는 법</em></h2>
+  <p class="sec-desc">
+    에러가 났을 때 "오류 났어요"라고 하면 AI가 도울 수 없다.<br>
+    에러 메시지 전문을 복사해서 맥락과 함께 전달해야 한다.
+  </p>
+
+  <div class="error-box">
+    <div class="error-header">⚠ 에러 메시지 해부 — Xcode 빌드 오류</div>
+    <div class="error-body">
+      <div class="error-msg">error: cannot convert value of type 'String' to expected argument type 'Int'<br>
+        LoginViewController.swift:24:35</div>
+      <div class="error-decode">
+        <div class="decode-row">
+          <span class="decode-label">파일</span>
+          <span class="decode-text">LoginViewController.swift — 어디서 났는지</span>
+        </div>
+        <div class="decode-row">
+          <span class="decode-label">위치</span>
+          <span class="decode-text">24번째 줄, 35번째 글자 — 정확한 위치</span>
+        </div>
+        <div class="decode-row">
+          <span class="decode-label">원인</span>
+          <span class="decode-text">String(문자)를 Int(숫자)로 쓰려 했다 — 타입이 맞지 않음</span>
+        </div>
+        <div class="decode-row">
+          <span class="decode-label">AI 전달</span>
+          <span class="decode-text">이 메시지 전체 + 24번째 줄 코드를 같이 보낸다</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-box">
+    <div class="info-title">💡 에러 전달 공식</div>
+    <p>
+      <strong>"[파일명] [줄번호]에서 아래 에러가 났어. 해당 코드와 에러 메시지 붙여넣음:"</strong><br>
+      + 에러 메시지 전문<br>
+      + 관련 코드 블록<br><br>
+      이것만 해도 AI가 원인을 찾아준다.
+    </p>
+  </div>
+
+  <div class="exercise-box">
+    <div class="ex-header">
+      <div class="ex-num">실습 B</div>
+      <div class="ex-title">에러 전달 요청 만들기</div>
+    </div>
+    <div class="ex-prompt">
+      <span class="prompt-label">시나리오</span>
+      아래 에러가 발생했다. AI에게 이 에러를 제대로 전달하는 요청을 작성한다.
+    </div>
+
+    <div style="background: var(--surface2); border: 1px solid rgba(239,68,68,0.2); padding: 14px 18px; margin-bottom: 16px; font-family: var(--font-mono); font-size: 12px; color: #ef4444; line-height: 1.8;">
+      error: value of optional type 'String?' must be unwrapped<br>
+      ContentView.swift:47:12
+    </div>
+
+    <div class="field-label">AI에게 전달할 에러 리포트 작성</div>
+    <textarea id="ex_b_error" rows="5"
+      placeholder="파일명, 줄번호, 에러 메시지, 관련 코드, 그리고 '어떻게 고쳐줘'를 포함해서 작성..."
+      oninput="updateProgress()"></textarea>
+    <div class="char-count" id="ex_b_count">0 자</div>
+  </div>
+</section>
+
+<!-- SECTION 3 — 코딩 리터러시 체크 -->
+<div class="divider"><div class="divider-line"></div></div>
+
+<section class="section" id="s3">
+  <div class="sec-label">03 · 자가 점검</div>
+  <h2 class="sec-title">내 코딩 리터러시 <em>점검</em></h2>
+  <p class="sec-desc">
+    완전히 알 필요는 없다. 하지만 아래 수준은 갖춰야 AI와 제대로 협업할 수 있다.
+  </p>
+
+  <div class="checklist" style="margin-bottom: 32px;">
+    <div class="check-item" onclick="toggleCheck(this)">
+      <div class="check-box">✓</div>
+      <span>변수와 함수의 차이를 설명할 수 있다</span>
+    </div>
+    <div class="check-item" onclick="toggleCheck(this)">
+      <div class="check-box">✓</div>
+      <span>에러 메시지에서 파일명과 줄 번호를 찾을 수 있다</span>
+    </div>
+    <div class="check-item" onclick="toggleCheck(this)">
+      <div class="check-box">✓</div>
+      <span>AI가 준 코드에서 내가 수정해야 할 부분을 찾을 수 있다</span>
+    </div>
+    <div class="check-item" onclick="toggleCheck(this)">
+      <div class="check-box">✓</div>
+      <span>nil과 Optional이 뭔지 대략 알고 있다 (Swift 기준)</span>
+    </div>
+    <div class="check-item" onclick="toggleCheck(this)">
+      <div class="check-box">✓</div>
+      <span>코드 주석(// 또는 /* */)을 읽고 이해할 수 있다</span>
+    </div>
+    <div class="check-item" onclick="toggleCheck(this)">
+      <div class="check-box">✓</div>
+      <span>빌드 성공과 런타임 에러의 차이를 알고 있다</span>
+    </div>
+  </div>
+
+  <div class="exercise-box">
+    <div class="ex-header">
+      <div class="ex-num">실습 C</div>
+      <div class="ex-title">나의 코딩 약점과 보완 계획</div>
+    </div>
+
+    <div class="field-label">현재 가장 모르는 코딩 개념 또는 용어</div>
+    <textarea id="ex_c_weak" rows="3"
+      placeholder="예: Optional이 뭔지 모르겠다, 클로저가 왜 필요한지 모르겠다..."
+      oninput="updateProgress()"></textarea>
+
+    <div class="field-label" style="margin-top: 16px;">AI에게 어떻게 이것을 배울 것인가?</div>
+    <textarea id="ex_c_plan" rows="4"
+      placeholder="예: 'Optional을 초등학생도 이해할 수 있게 비유로 설명해줘, 그 다음 Swift 코드 예시 보여줘'..."
+      oninput="updateProgress()"></textarea>
+
+    <div class="field-label" style="margin-top: 16px;">AI에게 코딩 개념을 배우는 좋은 요청 패턴 (직접 써본다)</div>
+    <textarea id="ex_c_learn_req" rows="4"
+      placeholder="위에서 정한 약점 하나를 AI에게 배우는 요청을 Vol.1 공식으로 작성해본다..."
+      oninput="updateProgress()"></textarea>
+  </div>
+
+  <button class="btn-primary" onclick="completeVol()">
+    <span>Vol.4 완료</span><span>→</span>
+  </button>
+</section>
+
+<!-- COMPLETION -->
+<section class="completion" id="completion">
+  <div style="font-family: var(--font-mono); font-size: 10px; letter-spacing: 3px; color: var(--accent2); margin-bottom: 20px; text-transform: uppercase;">Vol.4 완료</div>
+  <h2 class="completion-title">
+    코드를 짜지 않아도 된다.<br>
+    <span class="hl">읽을 수 있으면 된다.</span>
+  </h2>
+  <p style="color: var(--text-muted); font-size: 14px; line-height: 1.9; margin-bottom: 8px;">
+    AI가 짜준 코드의 흐름을 읽고,<br>
+    에러를 제대로 전달하고,<br>
+    결과를 검증할 수 있다면 — 충분하다.
+  </p>
+  <div class="next-row">
+    <div class="next-chip rec">
+      <span class="chip-num">→ 다음</span>
+      <div class="chip-name">Vol.5 케이스별 실전</div>
+    </div>
+  </div>
+</section>
+
+<script>
+function toggleCheck(item) { item.classList.toggle('checked'); updateProgress(); }
+
+function updateProgress() {
+  const fields = ['ex_a_role', 'ex_a_loop', 'ex_b_error', 'ex_c_weak', 'ex_c_plan'];
+  const filled = fields.filter(id => document.getElementById(id)?.value.length > 0).length;
+  document.getElementById('progressBar').style.width = (filled / fields.length * 100) + '%';
+
+  const el = document.getElementById('ex_b_error');
+  const cnt = document.getElementById('ex_b_count');
+  if (el && cnt) cnt.textContent = el.value.length + ' 자';
+}
+
+function completeVol() {
+  document.getElementById('completion').style.display = 'block';
+  document.getElementById('progressBar').style.width = '100%';
+  setTimeout(() => document.getElementById('completion').scrollIntoView({ behavior: 'smooth' }), 200);
+}
+</script>
+
+
+<style id="nav-bar-style">
+  .site-nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(6,6,9,0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    z-index: 9998;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    height: 52px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    gap: 16px;
+  }
+  .site-nav-left, .site-nav-right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .site-nav-center {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .nav-link {
+    color: rgba(255,255,255,0.25);
+    text-decoration: none;
+    padding: 6px 10px;
+    transition: color 0.15s;
+    font-size: 10px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .nav-link:hover { color: rgba(255,255,255,0.7); }
+  .nav-link.active { color: #fff; }
+  .nav-link.home { color: rgba(255,255,255,0.35); font-size: 14px; padding: 6px 8px; }
+  .nav-link.home:hover { color: #fff; }
+  .nav-sep { color: rgba(255,255,255,0.1); font-size: 10px; }
+  .nav-prev, .nav-next {
+    color: rgba(255,255,255,0.4);
+    text-decoration: none;
+    padding: 6px 12px;
+    border: 1px solid rgba(255,255,255,0.08);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .nav-prev:hover, .nav-next:hover {
+    color: #fff;
+    border-color: rgba(255,255,255,0.25);
+  }
+  .nav-next.primary {
+    color: #fff;
+    border-color: rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.05);
+  }
+  body { padding-bottom: 60px; }
+  @media (max-width: 600px) {
+    .site-nav-center { display: none; }
+    .site-nav { padding: 0 16px; }
+  }
+</style>
+
+<nav class="site-nav">
+  <div class="site-nav-left">
+    <a href="vol3-flow-building.html" class="nav-prev">← 이전</a>
+  </div>
+  <div class="site-nav-center">
+    <a href="index.html" class="nav-link">홈</a>
+    <span class="nav-sep">·</span>
+    <a href="vol0-self-diagnosis.html" class="nav-link">0</a>
+    <span class="nav-sep">·</span>
+    <a href="vol1-request-training.html" class="nav-link">1</a>
+    <span class="nav-sep">·</span>
+    <a href="vol2-response-reading.html" class="nav-link">2</a>
+    <span class="nav-sep">·</span>
+    <a href="vol3-flow-building.html" class="nav-link">3</a>
+    <span class="nav-sep">·</span>
+    <a href="vol4-coding-basics.html" class="nav-link active">4</a>
+    <span class="nav-sep">·</span>
+    <a href="vol5-real-cases.html" class="nav-link">5</a>
+  </div>
+  <div class="site-nav-right">
+    <a href="vol5-real-cases.html" class="nav-next primary">다음 →</a>
+  </div>
+</nav>
+
+</body>
+</html>

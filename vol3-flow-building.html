@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>바이브코딩 훈련소 Vol.3 — 플로우 구축</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #060a08;
+    --surface: #0c1410;
+    --surface2: #111c15;
+    --border: #1a2e20;
+    --accent: #4ade80;
+    --accent2: #facc15;
+    --accent3: #fb923c;
+    --text: #e2f0e8;
+    --text-muted: #587060;
+    --text-dim: #1e3025;
+    --font-display: 'Black Han Sans', sans-serif;
+    --font-body: 'Noto Sans KR', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  .bg-grid {
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(74,222,128,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(74,222,128,0.03) 1px, transparent 1px);
+    background-size: 32px 32px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .progress-wrap {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--surface2);
+    z-index: 9999;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+    width: 0%;
+    transition: width 0.3s;
+  }
+
+  /* COVER — full terminal aesthetic */
+  .cover {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  .terminal-bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .t-dot { width: 12px; height: 12px; border-radius: 50%; }
+  .t-red { background: #ff5f56; }
+  .t-yellow { background: #ffbd2e; }
+  .t-green { background: #27c93f; }
+
+  .t-title {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    margin-left: 8px;
+  }
+
+  .terminal-body {
+    flex: 1;
+    padding: 48px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .prompt-line {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--accent);
+    margin-bottom: 8px;
+    display: flex;
+    gap: 8px;
+  }
+
+  .prompt-line .ps { color: var(--text-muted); }
+
+  .cover-title {
+    font-family: var(--font-display);
+    font-size: clamp(48px, 8vw, 100px);
+    line-height: 0.95;
+    margin: 24px 0;
+  }
+
+  .cover-title .g1 { color: var(--text); display: block; }
+  .cover-title .g2 { color: var(--accent); display: block; text-shadow: 0 0 40px rgba(74,222,128,0.3); }
+
+  .cover-desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.9;
+    max-width: 480px;
+    margin-bottom: 40px;
+  }
+
+  .cover-quote {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--accent2);
+    padding: 16px 20px;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent2);
+    background: var(--surface);
+    max-width: 560px;
+    line-height: 1.7;
+    margin-bottom: 32px;
+  }
+
+  .cover-quote .q-attr {
+    display: block;
+    margin-top: 8px;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .cover-stats {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--border);
+    width: fit-content;
+    background: var(--surface);
+  }
+
+  .c-stat {
+    padding: 12px 20px;
+    border-right: 1px solid var(--border);
+    font-family: var(--font-mono);
+  }
+
+  .c-stat:last-child { border-right: none; }
+  .c-stat-key { font-size: 9px; letter-spacing: 2px; color: var(--text-muted); text-transform: uppercase; display: block; }
+  .c-stat-val { font-size: 13px; color: var(--accent); }
+
+  /* SECTIONS */
+  .section {
+    max-width: 840px;
+    margin: 0 auto;
+    padding: 80px 48px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .sec-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--accent3);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .sec-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .sec-title {
+    font-family: var(--font-display);
+    font-size: clamp(28px, 4vw, 44px);
+    line-height: 1.15;
+    margin-bottom: 12px;
+  }
+
+  .sec-title em { color: var(--accent); font-style: normal; }
+
+  .sec-desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.9;
+    margin-bottom: 36px;
+  }
+
+  .divider {
+    max-width: 840px;
+    margin: 0 auto;
+    padding: 0 48px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .divider-line {
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent) 0%, transparent 60%);
+  }
+
+  /* FLOW BUILDER */
+  .flow-demo {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    margin-bottom: 32px;
+  }
+
+  .flow-header {
+    background: var(--surface2);
+    padding: 10px 16px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .flow-body {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .flow-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .flow-step-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  .flow-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    background: var(--surface2);
+  }
+
+  .flow-step.active .flow-circle {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(74,222,128,0.08);
+  }
+
+  .flow-connector {
+    width: 2px;
+    height: 24px;
+    background: var(--border);
+    margin: 4px 0;
+  }
+
+  .flow-step.active .flow-connector { background: var(--accent); opacity: 0.4; }
+
+  .flow-content {
+    padding-top: 6px;
+    flex: 1;
+  }
+
+  .flow-step-name {
+    font-family: var(--font-display);
+    font-size: 16px;
+    margin-bottom: 2px;
+  }
+
+  .flow-step.active .flow-step-name { color: var(--accent); }
+
+  .flow-step-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .flow-ai-badge {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 1px;
+    padding: 2px 7px;
+    background: rgba(74,222,128,0.1);
+    border: 1px solid rgba(74,222,128,0.2);
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .flow-me-badge {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 1px;
+    padding: 2px 7px;
+    background: rgba(250,204,21,0.1);
+    border: 1px solid rgba(250,204,21,0.2);
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* DECOMPOSE EXERCISE */
+  .decompose-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  .decompose-header {
+    background: var(--surface2);
+    padding: 10px 16px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .decompose-row {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .decompose-row:last-child { border-bottom: none; }
+
+  .decompose-num {
+    width: 44px;
+    background: var(--surface2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--accent);
+    border-right: 1px solid var(--border);
+    padding: 14px;
+  }
+
+  .decompose-input {
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 13px;
+    padding: 14px 16px;
+    outline: none;
+    width: 100%;
+    line-height: 1.6;
+    transition: background 0.15s;
+  }
+
+  .decompose-input:focus { background: rgba(74,222,128,0.03); }
+  .decompose-input::placeholder { color: var(--text-dim); font-size: 12px; }
+
+  /* EXERCISE */
+  .exercise-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--accent3);
+    padding: 28px;
+    margin: 24px 0;
+  }
+
+  .ex-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .ex-num {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    background: var(--accent3);
+    color: var(--bg);
+    padding: 3px 10px;
+    text-transform: uppercase;
+  }
+
+  .ex-title {
+    font-family: var(--font-display);
+    font-size: 18px;
+  }
+
+  .ex-prompt {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    padding: 16px 18px;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.8;
+    margin-bottom: 20px;
+  }
+
+  .ex-prompt .prompt-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  textarea, input[type="text"] {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 14px;
+    padding: 12px 16px;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s;
+    line-height: 1.7;
+  }
+
+  textarea:focus, input[type="text"]:focus { border-color: var(--accent); }
+  textarea::placeholder, input[type="text"]::placeholder { color: var(--text-dim); font-size: 13px; }
+
+  .field-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .field-label::before { content: '▸'; color: var(--accent); }
+
+  .char-count {
+    text-align: right;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+
+  /* LOOP DIAGRAM */
+  .loop-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 28px;
+    margin-bottom: 24px;
+    position: relative;
+  }
+
+  .loop-title {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .loop-steps {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+
+  .loop-step {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 14px 16px;
+    text-align: center;
+    min-width: 100px;
+    flex-shrink: 0;
+  }
+
+  .loop-step.me { border-color: rgba(250,204,21,0.3); }
+  .loop-step.ai { border-color: rgba(74,222,128,0.3); }
+
+  .loop-step-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+
+  .loop-step.me .loop-step-label { color: var(--accent2); }
+  .loop-step.ai .loop-step-label { color: var(--accent); }
+
+  .loop-step-name {
+    font-family: var(--font-display);
+    font-size: 14px;
+  }
+
+  .loop-arrow {
+    font-size: 18px;
+    color: var(--text-dim);
+    padding: 0 8px;
+    flex-shrink: 0;
+  }
+
+  .loop-repeat {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--accent);
+    text-align: center;
+    margin-top: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  /* INFO BOX */
+  .info-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent2);
+    padding: 18px 22px;
+    margin: 24px 0;
+  }
+
+  .info-title {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .info-box p {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.8;
+  }
+
+  .info-box strong { color: var(--text); }
+
+  /* CHECKLIST */
+  .checklist {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .check-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .check-item:hover { border-color: rgba(74,222,128,0.2); }
+  .check-item.checked { border-color: rgba(74,222,128,0.3); background: rgba(74,222,128,0.04); color: var(--text); }
+
+  .check-box {
+    width: 18px;
+    height: 18px;
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    transition: all 0.15s;
+  }
+
+  .check-item.checked .check-box {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--bg);
+  }
+
+  /* BTN */
+  .btn-primary {
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    padding: 14px 28px;
+    font-family: var(--font-display);
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 24px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-primary:hover { filter: brightness(1.15); transform: translateY(-1px); }
+
+  /* COMPLETION */
+  .completion {
+    max-width: 840px;
+    margin: 0 auto;
+    padding: 80px 48px;
+    position: relative;
+    z-index: 1;
+    display: none;
+  }
+
+  .completion-title {
+    font-family: var(--font-display);
+    font-size: clamp(36px, 6vw, 64px);
+    line-height: 1.1;
+    margin-bottom: 20px;
+  }
+
+  .completion-title .hl { color: var(--accent); }
+
+  .next-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 28px;
+    flex-wrap: wrap;
+  }
+
+  .next-chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 14px 20px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .next-chip.rec { border-color: var(--accent); background: rgba(74,222,128,0.04); color: var(--text); }
+
+  .chip-num {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    display: block;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+  }
+
+  .next-chip.rec .chip-num { color: var(--accent); }
+  .chip-name { font-family: var(--font-display); font-size: 18px; }
+
+  @media (max-width: 640px) {
+    .terminal-body { padding: 32px 24px; }
+    .section { padding: 60px 24px; }
+    .completion { padding: 60px 24px; }
+    .loop-steps { gap: 4px; }
+  }
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<div class="progress-wrap"><div class="progress-fill" id="progressBar"></div></div>
+
+<!-- COVER -->
+<section class="cover" id="cover">
+  <div class="terminal-bar">
+    <div class="t-dot t-red"></div>
+    <div class="t-dot t-yellow"></div>
+    <div class="t-dot t-green"></div>
+    <div class="t-title">바이브코딩 훈련소 — vol3_flow_builder.md</div>
+  </div>
+  <div class="terminal-body">
+    <div class="prompt-line">
+      <span class="ps">~/vibecoding $</span>
+      <span>cat vol3_intro.txt</span>
+    </div>
+
+    <h1 class="cover-title">
+      <span class="g1">만들기 전에</span>
+      <span class="g2">흐름부터 그린다</span>
+    </h1>
+
+    <p class="cover-desc">
+      AI한테 무작정 "만들어줘"를 시키기 전에,<br>
+      내가 먼저 무엇을 어떤 순서로 만들지 그려야 한다.<br>
+      플로우가 없으면 AI도 방향을 잃는다.
+    </p>
+
+    <div class="cover-quote">
+      "일단 플로우를 만들어야 해요. 결국 코딩이라서 그걸 못하면 AI도 못 쓸 거에요."
+      <span class="q-attr">— 리이오, 실제 대화에서</span>
+    </div>
+
+    <div class="cover-stats">
+      <div class="c-stat"><span class="c-stat-key">예상 시간</span><span class="c-stat-val">35–45분</span></div>
+      <div class="c-stat"><span class="c-stat-key">전제</span><span class="c-stat-val">Vol.0–1 완료</span></div>
+      <div class="c-stat"><span class="c-stat-key">핵심 스킬</span><span class="c-stat-val">분해 + 순서화</span></div>
+      <div class="c-stat"><span class="c-stat-key">다음</span><span class="c-stat-val">Vol.5 실전</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 1 — 왜 플로우인가 -->
+<div class="divider"><div class="divider-line"></div></div>
+
+<section class="section" id="s1">
+  <div class="sec-label">01 · 개념</div>
+  <h2 class="sec-title">AI가 길을 잃는 <em>이유</em></h2>
+  <p class="sec-desc">
+    "앱 만들어줘"라고 하면 AI는 시작점을 임의로 잡는다.<br>
+    그 시작점이 내가 생각한 것과 다르면, 모든 후속 결과가 어긋난다.<br>
+    내가 먼저 단계를 나눠야 AI가 각 단계를 제대로 채울 수 있다.
+  </p>
+
+  <div class="flow-demo">
+    <div class="flow-header">좋은 협업 플로우 예시 — 할일 앱 만들기</div>
+    <div class="flow-body">
+      <div class="flow-step active">
+        <div class="flow-step-left">
+          <div class="flow-circle">1</div>
+          <div class="flow-connector"></div>
+        </div>
+        <div class="flow-content">
+          <div class="flow-step-name">기능 목록 정의</div>
+          <div class="flow-step-desc">할일 추가, 완료 체크, 삭제, 목록 표시</div>
+          <div class="flow-me-badge">내가 정함</div>
+        </div>
+      </div>
+      <div class="flow-step active">
+        <div class="flow-step-left">
+          <div class="flow-circle">2</div>
+          <div class="flow-connector"></div>
+        </div>
+        <div class="flow-content">
+          <div class="flow-step-name">데이터 구조 설계</div>
+          <div class="flow-step-desc">Todo 모델: id, title, isCompleted, createdAt</div>
+          <div class="flow-ai-badge">AI와 함께</div>
+        </div>
+      </div>
+      <div class="flow-step active">
+        <div class="flow-step-left">
+          <div class="flow-circle">3</div>
+          <div class="flow-connector"></div>
+        </div>
+        <div class="flow-content">
+          <div class="flow-step-name">화면 구성</div>
+          <div class="flow-step-desc">목록 화면 → 추가 시트 → 빈 상태 화면</div>
+          <div class="flow-me-badge">내가 결정</div>
+        </div>
+      </div>
+      <div class="flow-step active">
+        <div class="flow-step-left">
+          <div class="flow-circle">4</div>
+          <div class="flow-connector"></div>
+        </div>
+        <div class="flow-content">
+          <div class="flow-step-name">각 화면 구현 (순서대로)</div>
+          <div class="flow-step-desc">목록 화면 → 추가 기능 → 삭제 기능 순으로 하나씩</div>
+          <div class="flow-ai-badge">AI가 각 단계 구현</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-left">
+          <div class="flow-circle">5</div>
+        </div>
+        <div class="flow-content">
+          <div class="flow-step-name">연결 & 테스트</div>
+          <div class="flow-step-desc">전체 흐름 연결, 엣지 케이스 처리</div>
+          <div class="flow-ai-badge">AI + 내가 검증</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 2 — 분해 훈련 -->
+<div class="divider"><div class="divider-line"></div></div>
+
+<section class="section" id="s2">
+  <div class="sec-label">02 · 분해</div>
+  <h2 class="sec-title">큰 목표를 <em>작은 단위로</em> 쪼갠다</h2>
+  <p class="sec-desc">
+    "할 수 있는 가장 작은 단위"로 쪼갤수록 AI 결과가 정확해진다.<br>
+    "로그인 기능 만들어줘" → 너무 크다.<br>
+    "이메일 입력 필드 + 유효성 검사 함수만 만들어줘" → 딱 맞다.
+  </p>
+
+  <div class="info-box">
+    <div class="info-title">🔪 분해 기준</div>
+    <p>
+      <strong>한 번의 AI 요청으로 완성 가능한가?</strong><br>
+      답이 "그게 뭔지에 따라 달라요"라면 → 아직 크다.<br>
+      답이 "네, 코드 50줄 내외로 나올 것 같아요"라면 → 적당하다.
+    </p>
+  </div>
+
+  <div class="exercise-box">
+    <div class="ex-header">
+      <div class="ex-num">실습 A</div>
+      <div class="ex-title">기능 분해 연습</div>
+    </div>
+    <div class="ex-prompt">
+      <span class="prompt-label">시나리오</span>
+      "회원가입 기능"을 만들려 한다. 이것을 AI에게 하나씩 넘길 수 있는 가장 작은 단위로 나눈다. 최소 5단계.
+    </div>
+
+    <div class="decompose-wrap">
+      <div class="decompose-header">회원가입 기능 → 단계 분해</div>
+      <div class="decompose-row">
+        <div class="decompose-num">1</div>
+        <input type="text" class="decompose-input" id="d1" placeholder="가장 먼저 만들어야 하는 가장 작은 것..." oninput="updateProgress()">
+      </div>
+      <div class="decompose-row">
+        <div class="decompose-num">2</div>
+        <input type="text" class="decompose-input" id="d2" placeholder="그 다음..." oninput="updateProgress()">
+      </div>
+      <div class="decompose-row">
+        <div class="decompose-num">3</div>
+        <input type="text" class="decompose-input" id="d3" placeholder="" oninput="updateProgress()">
+      </div>
+      <div class="decompose-row">
+        <div class="decompose-num">4</div>
+        <input type="text" class="decompose-input" id="d4" placeholder="" oninput="updateProgress()">
+      </div>
+      <div class="decompose-row">
+        <div class="decompose-num">5</div>
+        <input type="text" class="decompose-input" id="d5" placeholder="" oninput="updateProgress()">
+      </div>
+      <div class="decompose-row">
+        <div class="decompose-num">6</div>
+        <input type="text" class="decompose-input" id="d6" placeholder="(선택)" oninput="updateProgress()">
+      </div>
+    </div>
+
+    <div class="field-label">분해한 각 단계 중 AI에게 넘길 것과 내가 결정할 것을 구분하면?</div>
+    <textarea id="ai_vs_me" rows="4"
+      placeholder="예: 1-3단계는 내가 결정(어떤 필드가 필요한지), 4-6단계는 AI에게 구현 요청..."
+      oninput="updateProgress()"></textarea>
+  </div>
+</section>
+
+<!-- SECTION 3 — 순서 설계 -->
+<div class="divider"><div class="divider-line"></div></div>
+
+<section class="section" id="s3">
+  <div class="sec-label">03 · 순서</div>
+  <h2 class="sec-title">순서가 <em>틀리면 다 꼬인다</em></h2>
+  <p class="sec-desc">
+    UI 먼저 만들고 데이터 모델을 나중에 잡으면, UI를 다 뜯어고쳐야 한다.<br>
+    의존 관계를 파악하고, 기초부터 쌓아야 한다.
+  </p>
+
+  <div class="info-box">
+    <div class="info-title">📐 순서 원칙</div>
+    <p>
+      <strong>데이터 모델 → 로직 → UI 순서가 기본이다.</strong><br>
+      UI가 어떻게 생겼는지는 나중 문제다. 무슨 데이터를 어떻게 저장하는지가 먼저다.<br>
+      AI에게도 이 순서로 요청해야 한다.
+    </p>
+  </div>
+
+  <div class="exercise-box">
+    <div class="ex-header">
+      <div class="ex-num">실습 B</div>
+      <div class="ex-title">내 프로젝트 순서 설계</div>
+    </div>
+    <div class="ex-prompt">
+      <span class="prompt-label">시나리오</span>
+      지금 만들고 있거나, 만들고 싶은 것을 하나 골라 작업 순서를 설계한다.
+      없으면 "날씨 앱 만들기"로 진행한다.
+    </div>
+
+    <div class="field-label">무엇을 만드는가?</div>
+    <input type="text" id="project_name" placeholder="예: 운동 기록 앱" oninput="updateProgress()">
+
+    <div class="field-label" style="margin-top: 16px;">작업 순서 (데이터 → 로직 → UI 원칙 참고)</div>
+    <div class="decompose-wrap" style="margin-top: 8px;">
+      <div class="decompose-header" id="order_title">내 프로젝트 — 작업 순서</div>
+      <div class="decompose-row">
+        <div class="decompose-num">1</div>
+        <input type="text" class="decompose-input" id="o1" placeholder="가장 먼저 해야 하는 것 (보통 데이터 모델)..." oninput="updateProgress()">
+      </div>
+      <div class="decompose-row">
+        <div class="decompose-num">2</div>
+        <input type="text" class="decompose-input" id="o2" placeholder="" oninput="updateProgress()">
+      </div>
+      <div class="decompose-row">
+        <div class="decompose-num">3</div>
+        <input type="text" class="decompose-input" id="o3" placeholder="" oninput="updateProgress()">
+      </div>
+      <div class="decompose-row">
+        <div class="decompose-num">4</div>
+        <input type="text" class="decompose-input" id="o4" placeholder="" oninput="updateProgress()">
+      </div>
+      <div class="decompose-row">
+        <div class="decompose-num">5</div>
+        <input type="text" class="decompose-input" id="o5" placeholder="마지막 단계 (보통 UI 완성 + 테스트)..." oninput="updateProgress()">
+      </div>
+    </div>
+
+    <div class="field-label">1단계에 대한 AI 요청문 (Vol.1 공식 적용)</div>
+    <textarea id="step1_req" rows="4"
+      placeholder="1단계 작업에 대해 Vol.1에서 배운 4가지 재료를 담아 실제 요청을 써본다..."
+      oninput="updateProgress()"></textarea>
+    <div class="char-count" id="step1_count">0 자</div>
+  </div>
+</section>
+
+<!-- SECTION 4 — 루프 -->
+<div class="divider"><div class="divider-line"></div></div>
+
+<section class="section" id="s4">
+  <div class="sec-label">04 · 루프</div>
+  <h2 class="sec-title">요청 → 확인 → 개선의 <em>반복 구조</em></h2>
+  <p class="sec-desc">
+    플로우를 짜고 AI에게 단계별로 넘겨도, 한 번에 완벽하게 나오지 않는다.<br>
+    요청 → 확인 → 개선의 루프가 하나의 완성 사이클이다.
+  </p>
+
+  <div class="loop-wrap">
+    <div class="loop-title">기본 반복 루프</div>
+    <div class="loop-steps">
+      <div class="loop-step me">
+        <div class="loop-step-label">나</div>
+        <div class="loop-step-name">요청</div>
+      </div>
+      <div class="loop-arrow">→</div>
+      <div class="loop-step ai">
+        <div class="loop-step-label">AI</div>
+        <div class="loop-step-name">생성</div>
+      </div>
+      <div class="loop-arrow">→</div>
+      <div class="loop-step me">
+        <div class="loop-step-label">나</div>
+        <div class="loop-step-name">검증</div>
+      </div>
+      <div class="loop-arrow">→</div>
+      <div class="loop-step me">
+        <div class="loop-step-label">나</div>
+        <div class="loop-step-name">개선 요청</div>
+      </div>
+      <div class="loop-arrow">→</div>
+      <div class="loop-step ai">
+        <div class="loop-step-label">AI</div>
+        <div class="loop-step-name">수정</div>
+      </div>
+      <div class="loop-arrow">→</div>
+      <div class="loop-step me">
+        <div class="loop-step-label">나</div>
+        <div class="loop-step-name">완료 판정</div>
+      </div>
+    </div>
+    <div class="loop-repeat">↺ 단계가 완료될 때까지 반복</div>
+  </div>
+
+  <div class="exercise-box">
+    <div class="ex-header">
+      <div class="ex-num">실습 C</div>
+      <div class="ex-title">내 루프 패턴 점검</div>
+    </div>
+
+    <div class="field-label">현재 AI와 작업할 때 루프가 몇 회 만에 완료되는 편인가?</div>
+    <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">
+      <button class="loop-btn" onclick="selectLoop(this, '1회 (바로 완성)')">1회</button>
+      <button class="loop-btn" onclick="selectLoop(this, '2–3회')">2–3회</button>
+      <button class="loop-btn" onclick="selectLoop(this, '5회 이상')">5회 이상</button>
+      <button class="loop-btn" onclick="selectLoop(this, '포기한다')">포기</button>
+    </div>
+    <input type="text" id="loop_count" style="display:none;">
+
+    <div class="field-label">루프가 길어지는 주요 원인은?</div>
+    <div class="checklist" id="loop_causes">
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box">✓</div>
+        <span>요청이 너무 모호해서 (→ Vol.1 복습)</span>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box">✓</div>
+        <span>한 번에 너무 많은 걸 요청해서</span>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box">✓</div>
+        <span>검증을 안 하고 바로 다음 단계로 가서</span>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box">✓</div>
+        <span>순서가 뒤바뀌어서 기초가 불안정해서</span>
+      </div>
+    </div>
+
+    <div class="field-label" style="margin-top: 20px;">이 훈련 후 내 루프를 어떻게 바꾸겠는가?</div>
+    <textarea id="loop_plan" rows="4"
+      placeholder="구체적인 행동 변화 1–2가지를 쓴다. '더 잘 할게요'는 계획이 아니다."
+      oninput="updateProgress()"></textarea>
+  </div>
+
+  <button class="btn-primary" onclick="completeVol()">
+    <span>Vol.3 완료</span><span>→</span>
+  </button>
+</section>
+
+<!-- COMPLETION -->
+<section class="completion" id="completion">
+  <div style="font-family: var(--font-mono); font-size: 10px; letter-spacing: 3px; color: var(--accent); margin-bottom: 20px; text-transform: uppercase;">Vol.3 완료</div>
+  <h2 class="completion-title">
+    플로우를 그리는 사람은<br>
+    <span class="hl">흔들리지 않는다.</span>
+  </h2>
+  <p style="color: var(--text-muted); font-size: 14px; line-height: 1.9;">
+    이제 AI에게 무언가를 시키기 전에<br>
+    <strong style="color: var(--text);">분해 → 순서화 → 단계별 요청 → 루프</strong><br>
+    이 흐름이 몸에 밸 때까지 반복한다.
+  </p>
+
+  <div class="next-row">
+    <div class="next-chip rec">
+      <span class="chip-num">→ 추천</span>
+      <div class="chip-name">Vol.5 케이스별 실전</div>
+    </div>
+    <div class="next-chip">
+      <span class="chip-num">Vol.4</span>
+      <div class="chip-name">코딩 기초 연결</div>
+    </div>
+    <div class="next-chip">
+      <span class="chip-num">Vol.2</span>
+      <div class="chip-name">응답 해석 (먼저 안 했다면)</div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .loop-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 8px 16px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .loop-btn:hover { border-color: rgba(74,222,128,0.2); }
+  .loop-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(74,222,128,0.06); }
+</style>
+
+<script>
+function toggleCheck(item) {
+  item.classList.toggle('checked');
+  updateProgress();
+}
+
+function selectLoop(btn, value) {
+  document.querySelectorAll('.loop-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('loop_count').value = value;
+  updateProgress();
+}
+
+document.getElementById('project_name')?.addEventListener('input', function() {
+  document.getElementById('order_title').textContent = (this.value || '내 프로젝트') + ' — 작업 순서';
+});
+
+function updateProgress() {
+  const fields = ['d1','d2','d3','o1','o2','project_name','step1_req'];
+  const filled = fields.filter(id => document.getElementById(id)?.value.length > 0).length;
+  document.getElementById('progressBar').style.width = (filled / fields.length * 100) + '%';
+
+  const el = document.getElementById('step1_req');
+  const cnt = document.getElementById('step1_count');
+  if (el && cnt) cnt.textContent = el.value.length + ' 자';
+}
+
+function completeVol() {
+  document.getElementById('completion').style.display = 'block';
+  document.getElementById('progressBar').style.width = '100%';
+  setTimeout(() => document.getElementById('completion').scrollIntoView({ behavior: 'smooth' }), 200);
+}
+</script>
+
+
+<style id="nav-bar-style">
+  .site-nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(6,6,9,0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    z-index: 9998;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    height: 52px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    gap: 16px;
+  }
+  .site-nav-left, .site-nav-right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .site-nav-center {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .nav-link {
+    color: rgba(255,255,255,0.25);
+    text-decoration: none;
+    padding: 6px 10px;
+    transition: color 0.15s;
+    font-size: 10px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .nav-link:hover { color: rgba(255,255,255,0.7); }
+  .nav-link.active { color: #fff; }
+  .nav-link.home { color: rgba(255,255,255,0.35); font-size: 14px; padding: 6px 8px; }
+  .nav-link.home:hover { color: #fff; }
+  .nav-sep { color: rgba(255,255,255,0.1); font-size: 10px; }
+  .nav-prev, .nav-next {
+    color: rgba(255,255,255,0.4);
+    text-decoration: none;
+    padding: 6px 12px;
+    border: 1px solid rgba(255,255,255,0.08);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .nav-prev:hover, .nav-next:hover {
+    color: #fff;
+    border-color: rgba(255,255,255,0.25);
+  }
+  .nav-next.primary {
+    color: #fff;
+    border-color: rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.05);
+  }
+  body { padding-bottom: 60px; }
+  @media (max-width: 600px) {
+    .site-nav-center { display: none; }
+    .site-nav { padding: 0 16px; }
+  }
+</style>
+
+<nav class="site-nav">
+  <div class="site-nav-left">
+    <a href="vol2-response-reading.html" class="nav-prev">← 이전</a>
+  </div>
+  <div class="site-nav-center">
+    <a href="index.html" class="nav-link">홈</a>
+    <span class="nav-sep">·</span>
+    <a href="vol0-self-diagnosis.html" class="nav-link">0</a>
+    <span class="nav-sep">·</span>
+    <a href="vol1-request-training.html" class="nav-link">1</a>
+    <span class="nav-sep">·</span>
+    <a href="vol2-response-reading.html" class="nav-link">2</a>
+    <span class="nav-sep">·</span>
+    <a href="vol3-flow-building.html" class="nav-link active">3</a>
+    <span class="nav-sep">·</span>
+    <a href="vol4-coding-basics.html" class="nav-link">4</a>
+    <span class="nav-sep">·</span>
+    <a href="vol5-real-cases.html" class="nav-link">5</a>
+  </div>
+  <div class="site-nav-right">
+    <a href="vol4-coding-basics.html" class="nav-next primary">다음 →</a>
+  </div>
+</nav>
+
+</body>
+</html>

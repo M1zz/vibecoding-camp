@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>바이브코딩 훈련소 — 시리즈 랜딩</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #060609;
+    --surface: #0d0d14;
+    --surface2: #131320;
+    --border: #1e1e30;
+    --text: #eeeef5;
+    --text-muted: #5a5a75;
+    --text-dim: #1c1c2e;
+    --font-display: 'Black Han Sans', sans-serif;
+    --font-body: 'Noto Sans KR', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    /* Vol colors */
+    --c0: #ff4d6d;
+    --c1: #00d4ff;
+    --c2: #c084fc;
+    --c3: #4ade80;
+    --c4: #fb923c;
+    --c5: #818cf8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font-body); line-height: 1.7; }
+
+  /* BACKGROUND */
+  .bg-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(ellipse at 10% 10%, rgba(255,77,109,0.04) 0%, transparent 40%),
+      radial-gradient(ellipse at 90% 90%, rgba(129,140,248,0.04) 0%, transparent 40%),
+      radial-gradient(ellipse at 50% 50%, rgba(74,222,128,0.02) 0%, transparent 60%);
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 80px 60px;
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  .hero-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .hero-eyebrow::before {
+    content: '';
+    width: 40px;
+    height: 1px;
+    background: var(--text-muted);
+  }
+
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(56px, 10vw, 120px);
+    line-height: 0.9;
+    margin-bottom: 32px;
+  }
+
+  .hero-title .ht1 {
+    display: block;
+    color: var(--text-muted);
+    font-size: 0.38em;
+    margin-bottom: 12px;
+    font-family: var(--font-mono);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  .hero-title .ht2 { color: var(--text); display: block; }
+  .hero-title .ht3 {
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(255,255,255,0.15);
+    display: block;
+  }
+
+  .hero-sub {
+    font-size: 16px;
+    color: var(--text-muted);
+    max-width: 560px;
+    line-height: 2.0;
+    margin-bottom: 48px;
+  }
+
+  .hero-sub strong { color: var(--text); }
+
+  /* ORIGIN QUOTE */
+  .origin-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--c0);
+    padding: 20px 28px;
+    max-width: 600px;
+    margin-bottom: 48px;
+  }
+
+  .origin-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--c0);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .origin-dialogue {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .dialogue-row {
+    display: flex;
+    gap: 12px;
+    font-size: 13px;
+  }
+
+  .d-who {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 1px;
+    min-width: 52px;
+    padding-top: 2px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+
+  .d-who.her { color: var(--text-muted); }
+  .d-who.him { color: var(--c0); }
+
+  .d-text { color: var(--text-muted); line-height: 1.7; }
+  .d-text strong { color: var(--text); }
+
+  /* CTA */
+  .cta-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .cta-primary {
+    background: var(--c0);
+    color: white;
+    border: none;
+    padding: 16px 32px;
+    font-family: var(--font-display);
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .cta-primary:hover { filter: brightness(1.15); transform: translateY(-2px); }
+
+  .cta-secondary {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    padding: 16px 28px;
+    font-family: var(--font-body);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .cta-secondary:hover { border-color: var(--text-muted); color: var(--text); }
+
+  /* HERO DECORATION */
+  .hero-deco {
+    position: absolute;
+    right: 60px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    opacity: 0.04;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .deco-row {
+    font-family: var(--font-display);
+    font-size: 48px;
+    color: white;
+    line-height: 1;
+    display: flex;
+    gap: 6px;
+  }
+
+  /* SERIES SECTION */
+  .series-section {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 100px 60px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 48px;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(32px, 5vw, 52px);
+    line-height: 1.1;
+  }
+
+  .section-title em { font-style: normal; }
+
+  .section-note {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    max-width: 280px;
+    text-align: right;
+    line-height: 1.7;
+  }
+
+  /* VOL CARDS GRID */
+  .vol-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2px;
+    background: var(--border);
+    margin-bottom: 2px;
+  }
+
+  .vol-card {
+    background: var(--surface);
+    padding: 32px;
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    display: block;
+    transition: background 0.2s;
+  }
+
+  .vol-card:hover { background: var(--surface2); }
+
+  .vol-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+  }
+
+  .vol-card.v0::before { background: var(--c0); }
+  .vol-card.v1::before { background: var(--c1); }
+  .vol-card.v2::before { background: var(--c2); }
+  .vol-card.v3::before { background: var(--c3); }
+  .vol-card.v4::before { background: var(--c4); }
+  .vol-card.v5::before { background: var(--c5); }
+
+  .vol-num {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .vol-card.v0 .vol-num { color: var(--c0); }
+  .vol-card.v1 .vol-num { color: var(--c1); }
+  .vol-card.v2 .vol-num { color: var(--c2); }
+  .vol-card.v3 .vol-num { color: var(--c3); }
+  .vol-card.v4 .vol-num { color: var(--c4); }
+  .vol-card.v5 .vol-num { color: var(--c5); }
+
+  .vol-name {
+    font-family: var(--font-display);
+    font-size: clamp(22px, 3vw, 30px);
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .vol-subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+    line-height: 1.6;
+  }
+
+  .vol-meta {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .vol-meta-item {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .vol-meta-item span { color: var(--text-muted); }
+
+  .vol-target {
+    position: absolute;
+    bottom: 24px;
+    right: 24px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    text-align: right;
+    max-width: 140px;
+    line-height: 1.5;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .vol-big-num {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    font-family: var(--font-display);
+    font-size: 80px;
+    opacity: 0.04;
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  .vol-card.v5 {
+    grid-column: span 2;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    align-items: center;
+  }
+
+  .vol-card.v5 .vol-big-num { font-size: 120px; right: 40px; top: 50%; transform: translateY(-50%); }
+
+  /* HOW SECTION */
+  .how-section {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 60px 100px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .how-title {
+    font-family: var(--font-display);
+    font-size: clamp(28px, 4vw, 44px);
+    margin-bottom: 40px;
+  }
+
+  .how-title em { color: var(--c0); font-style: normal; }
+
+  .how-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    background: var(--border);
+  }
+
+  .how-card {
+    background: var(--surface);
+    padding: 28px 24px;
+  }
+
+  .how-icon { font-size: 28px; margin-bottom: 14px; }
+
+  .how-card-title {
+    font-family: var(--font-display);
+    font-size: 20px;
+    margin-bottom: 8px;
+  }
+
+  .how-card-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.8;
+  }
+
+  /* FOOTER */
+  .footer {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 40px 60px;
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .footer-brand {
+    font-family: var(--font-display);
+    font-size: 18px;
+    color: var(--text);
+  }
+
+  .footer-brand span { color: var(--c0); }
+
+  .footer-by {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+  }
+
+  .footer-series {
+    display: flex;
+    gap: 6px;
+  }
+
+  .footer-vol {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+
+  .footer-vol:hover { border-color: var(--c0); color: var(--c0); }
+
+  /* DIVIDER */
+  .section-divider {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 60px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .section-divider-line {
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .fade-in { animation: fadeUp 0.7s ease forwards; opacity: 0; }
+  .d1 { animation-delay: 0.1s; }
+  .d2 { animation-delay: 0.25s; }
+  .d3 { animation-delay: 0.4s; }
+  .d4 { animation-delay: 0.55s; }
+  .d5 { animation-delay: 0.7s; }
+
+  @media (max-width: 768px) {
+    .hero { padding: 60px 24px; }
+    .series-section { padding: 60px 24px; }
+    .how-section { padding: 0 24px 60px; }
+    .footer { padding: 32px 24px; }
+    .section-divider { padding: 0 24px; }
+    .vol-grid { grid-template-columns: 1fr; }
+    .vol-card.v5 { grid-column: span 1; grid-template-columns: 1fr; gap: 0; }
+    .how-grid { grid-template-columns: 1fr; }
+    .hero-deco { display: none; }
+    .section-header { flex-direction: column; align-items: flex-start; }
+    .section-note { text-align: left; }
+  }
+</style>
+</head>
+<body>
+<div class="bg-layer"></div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-deco">
+    <div class="deco-row"><span>0</span><span>1</span><span>2</span></div>
+    <div class="deco-row"><span>3</span><span>4</span><span>5</span></div>
+  </div>
+
+  <div class="hero-eyebrow fade-in">개발자리 × 바이브코딩</div>
+
+  <h1 class="hero-title fade-in d1">
+    <span class="ht1">Vibecoding Training Camp</span>
+    <span class="ht2">바이브코딩</span>
+    <span class="ht3">훈련소</span>
+  </h1>
+
+  <p class="hero-sub fade-in d2">
+    <strong>"클로드 잘 쓰는 방법 모르겠다"</strong>는 말에서 시작했다.<br>
+    AI를 쓰고 싶은데 어디서부터 시작해야 할지 모르는 사람을 위한<br>
+    실전 중심 워크북 시리즈. Vol.0부터 Vol.5까지, 순서대로.
+  </p>
+
+  <div class="origin-box fade-in d3">
+    <div class="origin-label">시리즈의 시작 — 실제 대화</div>
+    <div class="origin-dialogue">
+      <div class="dialogue-row">
+        <span class="d-who her">디리니</span>
+        <span class="d-text">"클로드 잘 쓰는 방법 모르겠어요. 목적도 모르겠는데 돈 냈으니 뽕 뽑아야겠다 싶고."</span>
+      </div>
+      <div class="dialogue-row">
+        <span class="d-who him">리이오</span>
+        <span class="d-text"><strong>"일단 플로우를 만들어야 해요. 결국 코딩이라서 그걸 못하면 AI도 못 쓸 거에요."</strong></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-row fade-in d4">
+    <a href="vol0-self-diagnosis.html" class="cta-primary">Vol.0부터 시작 →</a>
+    <a href="#series" class="cta-secondary">시리즈 전체 보기</a>
+  </div>
+</section>
+
+<!-- SERIES OVERVIEW -->
+<div class="section-divider"><div class="section-divider-line"></div></div>
+
+<section class="series-section" id="series">
+  <div class="section-header">
+    <h2 class="section-title">6권의 워크북,<br>하나의 <em>여정</em></h2>
+    <p class="section-note">각 Vol은 독립적으로 사용 가능하지만,<br>순서대로 할 때 효과가 가장 크다.</p>
+  </div>
+
+  <div class="vol-grid">
+
+    <a href="vol0-self-diagnosis.html" class="vol-card v0">
+      <div class="vol-big-num">0</div>
+      <div class="vol-num">Vol.0 · 입소편</div>
+      <div class="vol-name">나는 AI를 왜 쓰는가</div>
+      <div class="vol-subtitle">자가진단 · 유형 파악 · 목표 설정</div>
+      <div class="vol-meta">
+        <div class="vol-meta-item">시간 <span>20–30분</span></div>
+        <div class="vol-meta-item">형식 <span>자기 성찰</span></div>
+      </div>
+      <div class="vol-target">AI가 답답한<br>모든 사람</div>
+    </a>
+
+    <a href="vol1-request-training.html" class="vol-card v1">
+      <div class="vol-big-num">1</div>
+      <div class="vol-num">Vol.1 · 요청편</div>
+      <div class="vol-name">말을 잘 해야 AI가 잘 한다</div>
+      <div class="vol-subtitle">4가지 재료 공식 · Clarify 기법 · 성공 기준</div>
+      <div class="vol-meta">
+        <div class="vol-meta-item">시간 <span>30–40분</span></div>
+        <div class="vol-meta-item">실습 <span>4개</span></div>
+      </div>
+      <div class="vol-target">요청이<br>모호한 사람</div>
+    </a>
+
+    <a href="vol2-response-reading.html" class="vol-card v2">
+      <div class="vol-big-num">2</div>
+      <div class="vol-num">Vol.2 · 해석편</div>
+      <div class="vol-name">AI가 하는 말을 이해하는 법</div>
+      <div class="vol-subtitle">응답 구조 분석 · 변경사항 추적 · 검증 체크리스트</div>
+      <div class="vol-meta">
+        <div class="vol-meta-item">시간 <span>25–35분</span></div>
+        <div class="vol-meta-item">실습 <span>3개</span></div>
+      </div>
+      <div class="vol-target">응답을 못<br>알아먹는 사람</div>
+    </a>
+
+    <a href="vol3-flow-building.html" class="vol-card v3">
+      <div class="vol-big-num">3</div>
+      <div class="vol-num">Vol.3 · 플로우편</div>
+      <div class="vol-name">만들기 전에 흐름부터 그린다</div>
+      <div class="vol-subtitle">기능 분해 · 순서 원칙 · 요청→확인→개선 루프</div>
+      <div class="vol-meta">
+        <div class="vol-meta-item">시간 <span>35–45분</span></div>
+        <div class="vol-meta-item">실습 <span>3개</span></div>
+      </div>
+      <div class="vol-target">플로우 없이<br>AI에 맡기는 사람</div>
+    </a>
+
+    <a href="vol4-coding-basics.html" class="vol-card v4">
+      <div class="vol-big-num">4</div>
+      <div class="vol-num">Vol.4 · 코딩편</div>
+      <div class="vol-name">결국 코딩이다</div>
+      <div class="vol-subtitle">최소 코딩 리터러시 · 에러 메시지 읽기 · 코드 흐름 파악</div>
+      <div class="vol-meta">
+        <div class="vol-meta-item">시간 <span>40–50분</span></div>
+        <div class="vol-meta-item">전제 <span>코딩 경험 0~</span></div>
+      </div>
+      <div class="vol-target">코딩을 전혀<br>모르는 사람</div>
+    </a>
+
+    <a href="vol5-real-cases.html" class="vol-card v5">
+      <div>
+        <div class="vol-num">Vol.5 · 실전편</div>
+        <div class="vol-name">케이스별 실전</div>
+        <div class="vol-subtitle">앱 제작 · 비서/자동화 · 콘텐츠 생산<br>처음부터 끝까지 AI와 함께 완성한다</div>
+        <div class="vol-meta" style="margin-top: 16px;">
+          <div class="vol-meta-item">시간 <span>60분+</span></div>
+          <div class="vol-meta-item">방식 <span>실제 AI 사용</span></div>
+          <div class="vol-meta-item">전제 <span>Vol.1 + Vol.3</span></div>
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="background: var(--surface2); border: 1px solid var(--border); padding: 14px 18px; font-size: 13px; color: var(--text-muted);">📱 앱 / 화면 제작</div>
+        <div style="background: var(--surface2); border: 1px solid var(--border); padding: 14px 18px; font-size: 13px; color: var(--text-muted);">⚙️ 비서 / 자동화</div>
+        <div style="background: var(--surface2); border: 1px solid var(--border); padding: 14px 18px; font-size: 13px; color: var(--text-muted);">✍️ 콘텐츠 생산</div>
+      </div>
+      <div class="vol-big-num">5</div>
+    </a>
+
+  </div>
+</section>
+
+<!-- HOW TO USE -->
+<div class="section-divider"><div class="section-divider-line"></div></div>
+
+<section class="how-section">
+  <h2 class="how-title" style="padding-top: 80px;">이렇게 <em>사용한다</em></h2>
+
+  <div class="how-grid">
+    <div class="how-card">
+      <div class="how-icon">🎯</div>
+      <div class="how-card-title">Vol.0부터</div>
+      <div class="how-card-desc">자기 유형을 먼저 파악한다. 어디서 막히는지 알아야 처방이 달라진다.</div>
+    </div>
+    <div class="how-card">
+      <div class="how-icon">✍️</div>
+      <div class="how-card-title">직접 쓴다</div>
+      <div class="how-card-desc">실습 칸을 반드시 채운다. 읽기만 하면 아무것도 바뀌지 않는다.</div>
+    </div>
+    <div class="how-card">
+      <div class="how-icon">🔁</div>
+      <div class="how-card-title">반복이 답이다</div>
+      <div class="how-card-desc">한 번으로 완벽해지지 않는다. 실전에서 막히면 해당 Vol로 돌아온다.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div>
+    <div class="footer-brand">바이브코딩 <span>훈련소</span></div>
+    <div class="footer-by" style="margin-top: 4px;">by 개발자리 · 리이오</div>
+  </div>
+
+  <div class="footer-series">
+    <a href="vol0-self-diagnosis.html" class="footer-vol">0</a>
+    <a href="vol1-request-training.html" class="footer-vol">1</a>
+    <a href="vol2-response-reading.html" class="footer-vol">2</a>
+    <a href="vol3-flow-building.html" class="footer-vol">3</a>
+    <a href="vol4-coding-basics.html" class="footer-vol">4</a>
+    <a href="vol5-real-cases.html" class="footer-vol">5</a>
+  </div>
+</footer>
+
+
+
+<style id="nav-bar-style">
+  .site-nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(6,6,9,0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    z-index: 9998;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    height: 52px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    gap: 16px;
+  }
+  .site-nav-left, .site-nav-right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .site-nav-center {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .nav-link {
+    color: rgba(255,255,255,0.25);
+    text-decoration: none;
+    padding: 6px 10px;
+    transition: color 0.15s;
+    font-size: 10px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .nav-link:hover { color: rgba(255,255,255,0.7); }
+  .nav-link.active { color: #fff; }
+  .nav-link.home { color: rgba(255,255,255,0.35); font-size: 14px; padding: 6px 8px; }
+  .nav-link.home:hover { color: #fff; }
+  .nav-sep { color: rgba(255,255,255,0.1); font-size: 10px; }
+  .nav-prev, .nav-next {
+    color: rgba(255,255,255,0.4);
+    text-decoration: none;
+    padding: 6px 12px;
+    border: 1px solid rgba(255,255,255,0.08);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .nav-prev:hover, .nav-next:hover {
+    color: #fff;
+    border-color: rgba(255,255,255,0.25);
+  }
+  .nav-next.primary {
+    color: #fff;
+    border-color: rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.05);
+  }
+  body { padding-bottom: 60px; }
+  @media (max-width: 600px) {
+    .site-nav-center { display: none; }
+    .site-nav { padding: 0 16px; }
+  }
+</style>
+
+<nav class="site-nav">
+  <div class="site-nav-left">
+    <span style="width:72px;display:inline-block;"></span>
+  </div>
+  <div class="site-nav-center">
+    <a href="index.html" class="nav-link active">홈</a>
+    <span class="nav-sep">·</span>
+    <a href="vol0-self-diagnosis.html" class="nav-link">0</a>
+    <span class="nav-sep">·</span>
+    <a href="vol1-request-training.html" class="nav-link">1</a>
+    <span class="nav-sep">·</span>
+    <a href="vol2-response-reading.html" class="nav-link">2</a>
+    <span class="nav-sep">·</span>
+    <a href="vol3-flow-building.html" class="nav-link">3</a>
+    <span class="nav-sep">·</span>
+    <a href="vol4-coding-basics.html" class="nav-link">4</a>
+    <span class="nav-sep">·</span>
+    <a href="vol5-real-cases.html" class="nav-link">5</a>
+  </div>
+  <div class="site-nav-right">
+    <a href="vol0-self-diagnosis.html" class="nav-next primary">다음 →</a>
+  </div>
+</nav>
+
+</body>
+</html>

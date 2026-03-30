@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>바이브코딩 훈련소 Vol.5 — 케이스별 실전</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #07060f;
+    --surface: #0e0c1a;
+    --surface2: #141226;
+    --border: #1f1c35;
+    --accent: #818cf8;
+    --accent2: #f472b6;
+    --accent3: #34d399;
+    --accent4: #fb923c;
+    --text: #ece9ff;
+    --text-muted: #5e5a80;
+    --text-dim: #201e38;
+    --font-display: 'Black Han Sans', sans-serif;
+    --font-body: 'Noto Sans KR', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font-body); line-height: 1.7; }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 15% 20%, rgba(129,140,248,0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 85% 80%, rgba(244,114,182,0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .progress-wrap { position: fixed; top: 0; left: 0; right: 0; height: 3px; background: var(--surface2); z-index: 9999; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent2), var(--accent)); width: 0%; transition: width 0.3s; }
+
+  /* COVER */
+  .cover {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 60px 48px;
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  .vol-badge {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .vol-badge::before { content: ''; width: 24px; height: 1px; background: var(--accent); }
+
+  .cover-title {
+    font-family: var(--font-display);
+    font-size: clamp(48px, 8vw, 96px);
+    line-height: 0.95;
+    margin-bottom: 28px;
+  }
+
+  .cover-title .l1 { color: var(--text-muted); display: block; font-size: 0.45em; margin-bottom: 10px; font-family: var(--font-mono); letter-spacing: 2px; }
+  .cover-title .l2 { color: var(--text); display: block; }
+  .cover-title .l3 { color: var(--accent); display: block; text-shadow: 0 0 50px rgba(129,140,248,0.4); }
+
+  .cover-desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    max-width: 500px;
+    line-height: 1.9;
+    margin-bottom: 36px;
+  }
+
+  /* CASE SELECTOR */
+  .case-selector {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+  }
+
+  .case-pill {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 8px 18px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .case-pill:hover { border-color: rgba(129,140,248,0.3); color: var(--text); }
+  .case-pill.active { border-color: var(--accent); color: var(--accent); background: rgba(129,140,248,0.08); }
+
+  .cover-stats {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--border);
+    width: fit-content;
+    background: var(--surface);
+  }
+
+  .cstat { padding: 12px 20px; border-right: 1px solid var(--border); font-family: var(--font-mono); }
+  .cstat:last-child { border-right: none; }
+  .cstat-k { font-size: 9px; letter-spacing: 2px; color: var(--text-muted); text-transform: uppercase; display: block; }
+  .cstat-v { font-size: 13px; color: var(--accent); }
+
+  .big-bg {
+    position: absolute;
+    right: 40px;
+    bottom: -20px;
+    font-family: var(--font-display);
+    font-size: clamp(160px, 25vw, 300px);
+    color: var(--accent);
+    opacity: 0.03;
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  /* SECTIONS */
+  .section { max-width: 840px; margin: 0 auto; padding: 80px 48px; position: relative; z-index: 1; }
+
+  .sec-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .sec-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .sec-title { font-family: var(--font-display); font-size: clamp(26px, 4vw, 40px); line-height: 1.15; margin-bottom: 12px; }
+  .sec-title em { color: var(--accent); font-style: normal; }
+
+  .sec-desc { font-size: 14px; color: var(--text-muted); line-height: 1.9; margin-bottom: 36px; }
+
+  .divider { max-width: 840px; margin: 0 auto; padding: 0 48px; position: relative; z-index: 1; }
+  .divider-line { height: 1px; background: linear-gradient(90deg, var(--accent) 0%, transparent 60%); }
+
+  /* CASE CARDS */
+  .case-cards {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .case-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .case-card:hover { border-color: rgba(129,140,248,0.2); }
+  .case-card.selected { border-color: var(--accent); }
+
+  .case-card-top {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .case-card.selected .case-card-top { border-bottom-color: rgba(129,140,248,0.2); }
+
+  .case-icon { font-size: 22px; }
+
+  .case-card-name { font-family: var(--font-display); font-size: 20px; }
+
+  .case-badge {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 1px;
+    padding: 3px 10px;
+    text-transform: uppercase;
+    border: 1px solid;
+  }
+
+  .badge-app { color: var(--accent3); border-color: var(--accent3); background: rgba(52,211,153,0.06); }
+  .badge-auto { color: var(--accent4); border-color: var(--accent4); background: rgba(251,146,60,0.06); }
+  .badge-content { color: var(--accent2); border-color: var(--accent2); background: rgba(244,114,182,0.06); }
+
+  .case-card-body {
+    padding: 16px 20px;
+    display: none;
+  }
+
+  .case-card.selected .case-card-body { display: block; }
+
+  .case-what {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.8;
+    margin-bottom: 14px;
+  }
+
+  .case-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .case-step {
+    display: flex;
+    gap: 10px;
+    font-size: 12px;
+    color: var(--text-muted);
+    padding: 8px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+  }
+
+  .case-step-num { font-family: var(--font-mono); color: var(--accent); min-width: 18px; font-size: 11px; }
+
+  /* EXERCISE */
+  .exercise-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--accent);
+    padding: 28px;
+    margin: 24px 0;
+  }
+
+  .ex-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+  .ex-num { font-family: var(--font-mono); font-size: 10px; letter-spacing: 2px; background: var(--accent); color: var(--bg); padding: 3px 10px; text-transform: uppercase; }
+  .ex-title { font-family: var(--font-display); font-size: 18px; }
+
+  .ex-prompt {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent2);
+    padding: 16px 18px;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.8;
+    margin-bottom: 20px;
+  }
+
+  .ex-prompt .prompt-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--accent2);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  textarea, input[type="text"] {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 14px;
+    padding: 12px 16px;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s;
+    line-height: 1.7;
+  }
+
+  textarea:focus, input[type="text"]:focus { border-color: var(--accent); }
+  textarea::placeholder, input[type="text"]::placeholder { color: var(--text-dim); font-size: 13px; }
+
+  .field-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--accent3);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .field-label::before { content: '▸'; color: var(--accent3); }
+
+  .char-count { text-align: right; font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); margin-top: 4px; }
+
+  /* DECOMPOSE TABLE */
+  .decompose-wrap { background: var(--surface); border: 1px solid var(--border); overflow: hidden; margin: 16px 0; }
+  .decompose-header { background: var(--surface2); padding: 10px 16px; font-family: var(--font-mono); font-size: 10px; letter-spacing: 2px; color: var(--text-muted); text-transform: uppercase; border-bottom: 1px solid var(--border); }
+  .decompose-row { display: grid; grid-template-columns: 44px 1fr; border-bottom: 1px solid var(--border); }
+  .decompose-row:last-child { border-bottom: none; }
+  .decompose-num { background: var(--surface2); display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 12px; color: var(--accent); border-right: 1px solid var(--border); }
+  .decompose-input { background: transparent; border: none; color: var(--text); font-family: var(--font-body); font-size: 13px; padding: 12px 16px; outline: none; width: 100%; transition: background 0.15s; }
+  .decompose-input:focus { background: rgba(129,140,248,0.03); }
+  .decompose-input::placeholder { color: var(--text-dim); font-size: 12px; }
+
+  /* CHECKLIST */
+  .checklist { display: flex; flex-direction: column; gap: 8px; }
+  .check-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); cursor: pointer; transition: all 0.15s; font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+  .check-item:hover { border-color: rgba(129,140,248,0.2); }
+  .check-item.checked { border-color: rgba(129,140,248,0.3); background: rgba(129,140,248,0.04); color: var(--text); }
+  .check-box { width: 18px; height: 18px; border: 1px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 10px; transition: all 0.15s; margin-top: 1px; }
+  .check-item.checked .check-box { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+
+  /* BTN */
+  .btn-primary { background: var(--accent); color: var(--bg); border: none; padding: 14px 28px; font-family: var(--font-display); font-size: 16px; cursor: pointer; transition: all 0.2s; margin-top: 24px; display: inline-flex; align-items: center; gap: 8px; }
+  .btn-primary:hover { filter: brightness(1.15); transform: translateY(-1px); }
+
+  /* RETRO BOARD */
+  .retro-board {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin: 24px 0;
+  }
+
+  .retro-title {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .retro-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .retro-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+  }
+
+  .retro-col { }
+  .retro-col-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+  .retro-col:nth-child(1) .retro-col-label { color: var(--accent3); }
+  .retro-col:nth-child(2) .retro-col-label { color: var(--accent4); }
+  .retro-col:nth-child(3) .retro-col-label { color: var(--accent2); }
+
+  .retro-textarea {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 12px;
+    padding: 10px 12px;
+    resize: none;
+    outline: none;
+    height: 100px;
+    transition: border-color 0.2s;
+    line-height: 1.7;
+  }
+
+  .retro-textarea:focus { border-color: var(--accent); }
+  .retro-textarea::placeholder { color: var(--text-dim); font-size: 11px; }
+
+  /* COMPLETION */
+  .completion { max-width: 840px; margin: 0 auto; padding: 80px 48px; position: relative; z-index: 1; display: none; }
+  .completion-title { font-family: var(--font-display); font-size: clamp(36px, 6vw, 68px); line-height: 1.0; margin-bottom: 24px; }
+  .completion-title .hl1 { color: var(--accent); }
+  .completion-title .hl2 { color: var(--accent2); }
+
+  .series-complete {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 28px;
+    margin-top: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .series-complete::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent2), var(--accent), var(--accent3), var(--accent4));
+  }
+
+  .series-vols {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .series-vol-chip {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 6px 14px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .series-vol-chip.done {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(129,140,248,0.06);
+  }
+
+  @media (max-width: 640px) {
+    .cover { padding: 40px 24px; }
+    .section { padding: 60px 24px; }
+    .completion { padding: 60px 24px; }
+    .retro-cols { grid-template-columns: 1fr; }
+    .retro-textarea { height: 70px; }
+  }
+</style>
+</head>
+<body>
+<div class="progress-wrap"><div class="progress-fill" id="progressBar"></div></div>
+
+<!-- COVER -->
+<section class="cover" id="cover">
+  <div class="big-bg">5</div>
+
+  <div class="vol-badge">바이브코딩 훈련소 · Vol.5</div>
+  <h1 class="cover-title">
+    <span class="l1">실전 케이스 워크북</span>
+    <span class="l2">목적이 있다면</span>
+    <span class="l3">지금 시작한다</span>
+  </h1>
+
+  <p class="cover-desc">
+    Vol.0–4에서 익힌 모든 것을 실전에 적용한다.<br>
+    케이스를 하나 골라서, 처음부터 끝까지 AI와 함께 완성해본다.<br>
+    어디서 막히는지 기록하고, 다시 시도한다.
+  </p>
+
+  <p style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); margin-bottom: 16px; letter-spacing: 1px; text-transform: uppercase;">케이스 선택 (하나만)</p>
+  <div class="case-selector">
+    <div class="case-pill" onclick="selectCase(this, 'app')">📱 앱 / 화면 제작</div>
+    <div class="case-pill" onclick="selectCase(this, 'auto')">⚙️ 비서 / 자동화</div>
+    <div class="case-pill" onclick="selectCase(this, 'content')">✍️ 콘텐츠 생산</div>
+  </div>
+
+  <div class="cover-stats">
+    <div class="cstat"><span class="cstat-k">예상 시간</span><span class="cstat-v">60분+</span></div>
+    <div class="cstat"><span class="cstat-k">전제</span><span class="cstat-v">Vol.1 + Vol.3</span></div>
+    <div class="cstat"><span class="cstat-k">실습 방식</span><span class="cstat-v">실제 AI 사용</span></div>
+  </div>
+</section>
+
+<!-- SECTION 1 — 케이스 선택 -->
+<div class="divider"><div class="divider-line"></div></div>
+
+<section class="section" id="s1">
+  <div class="sec-label">01 · 선택</div>
+  <h2 class="sec-title">내 케이스를 <em>고른다</em></h2>
+  <p class="sec-desc">
+    막연하게 "뭔가 만들어야지"가 아니라, 완성 가능한 구체적인 것 하나를 고른다.<br>
+    아래 세 영역 중 하나를 선택하고, 그 안에서 내 것을 정한다.
+  </p>
+
+  <div class="case-cards">
+
+    <!-- APP -->
+    <div class="case-card" id="card-app" onclick="selectCard('app')">
+      <div class="case-card-top">
+        <div class="case-icon">📱</div>
+        <div class="case-card-name">앱 / 화면 제작</div>
+        <div class="case-badge badge-app">개발 케이스</div>
+      </div>
+      <div class="case-card-body">
+        <div class="case-what">
+          iOS 앱의 특정 화면 하나를 AI와 함께 처음부터 끝까지 만든다.<br>
+          "전체 앱"이 아니라 "화면 하나"로 범위를 좁힌다.
+        </div>
+        <div class="case-steps">
+          <div class="case-step"><span class="case-step-num">1</span>어떤 화면을 만들 것인지 결정 (로그인, 목록, 상세, 설정 등)</div>
+          <div class="case-step"><span class="case-step-num">2</span>화면에 필요한 UI 요소 목록 작성</div>
+          <div class="case-step"><span class="case-step-num">3</span>데이터 구조 결정 (어떤 데이터를 표시하는가?)</div>
+          <div class="case-step"><span class="case-step-num">4</span>Vol.3 플로우대로 단계별 AI 요청</div>
+          <div class="case-step"><span class="case-step-num">5</span>각 단계 결과 검증 + 통합 테스트</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AUTOMATION -->
+    <div class="case-card" id="card-auto" onclick="selectCard('auto')">
+      <div class="case-card-top">
+        <div class="case-icon">⚙️</div>
+        <div class="case-card-name">비서 / 자동화</div>
+        <div class="case-badge badge-auto">생산성 케이스</div>
+      </div>
+      <div class="case-card-body">
+        <div class="case-what">
+          반복적으로 하는 일 하나를 AI 또는 스크립트로 자동화한다.<br>
+          회의 요약, 이메일 초안, 데이터 정리, 스케줄 관리 등.
+        </div>
+        <div class="case-steps">
+          <div class="case-step"><span class="case-step-num">1</span>자동화하고 싶은 반복 작업 하나 선택</div>
+          <div class="case-step"><span class="case-step-num">2</span>현재 프로세스를 단계로 써본다</div>
+          <div class="case-step"><span class="case-step-num">3</span>어느 단계를 AI가 대체할 수 있는지 파악</div>
+          <div class="case-step"><span class="case-step-num">4</span>AI 프롬프트 또는 스크립트 작성</div>
+          <div class="case-step"><span class="case-step-num">5</span>실제 데이터로 테스트 → 개선</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="case-card" id="card-content" onclick="selectCard('content')">
+      <div class="case-card-top">
+        <div class="case-icon">✍️</div>
+        <div class="case-card-name">콘텐츠 생산</div>
+        <div class="case-badge badge-content">창작 케이스</div>
+      </div>
+      <div class="case-card-body">
+        <div class="case-what">
+          블로그 포스트, 뉴스레터, 유튜브 스크립트, SNS 게시물 등<br>
+          하나의 콘텐츠를 AI와 함께 처음부터 끝까지 완성한다.
+        </div>
+        <div class="case-steps">
+          <div class="case-step"><span class="case-step-num">1</span>어떤 콘텐츠를, 누구를 위해 만드는지 결정</div>
+          <div class="case-step"><span class="case-step-num">2</span>핵심 메시지 3가지 정리</div>
+          <div class="case-step"><span class="case-step-num">3</span>AI에게 구조(목차/섹션) 먼저 요청</div>
+          <div class="case-step"><span class="case-step-num">4</span>섹션별로 작성 요청 → 내가 편집</div>
+          <div class="case-step"><span class="case-step-num">5</span>최종 검수 → 발행</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- SECTION 2 — 내 케이스 설계 -->
+<div class="divider"><div class="divider-line"></div></div>
+
+<section class="section" id="s2">
+  <div class="sec-label">02 · 설계</div>
+  <h2 class="sec-title">내 케이스를 <em>구체화한다</em></h2>
+  <p class="sec-desc">
+    고른 케이스를 Vol.3에서 배운 분해 + 순서화로 설계한다.<br>
+    시작 전에 이 설계가 있어야 AI와의 협업이 흔들리지 않는다.
+  </p>
+
+  <div class="exercise-box">
+    <div class="ex-header">
+      <div class="ex-num">설계 A</div>
+      <div class="ex-title">목표 정의</div>
+    </div>
+
+    <div class="field-label">무엇을 만들 것인가? (한 문장으로)</div>
+    <input type="text" id="goal_what" placeholder="예: 운동 기록 앱의 '운동 추가' 화면을 UIKit으로 만든다" oninput="updateProgress()">
+
+    <div class="field-label">완성의 기준 (이게 되면 완성이다)</div>
+    <textarea id="goal_done" rows="3"
+      placeholder="예: '+ 버튼 탭 → 운동명 입력 → 저장 시 목록에 추가됨' 이 시나리오가 동작한다"
+      oninput="updateProgress()"></textarea>
+
+    <div class="field-label">이번 세션에서 사용할 기술/도구</div>
+    <input type="text" id="goal_tech" placeholder="예: Swift UIKit, Xcode 15, SwiftData" oninput="updateProgress()">
+  </div>
+
+  <div class="exercise-box">
+    <div class="ex-header">
+      <div class="ex-num">설계 B</div>
+      <div class="ex-title">단계 분해 (Vol.3 복습)</div>
+    </div>
+
+    <div class="decompose-wrap">
+      <div class="decompose-header">내 케이스 — 작업 단계</div>
+      <div class="decompose-row"><div class="decompose-num">1</div><input type="text" class="decompose-input" id="step1" placeholder="첫 번째 단계 (보통 데이터 구조 또는 기초 설정)..." oninput="updateProgress()"></div>
+      <div class="decompose-row"><div class="decompose-num">2</div><input type="text" class="decompose-input" id="step2" placeholder="" oninput="updateProgress()"></div>
+      <div class="decompose-row"><div class="decompose-num">3</div><input type="text" class="decompose-input" id="step3" placeholder="" oninput="updateProgress()"></div>
+      <div class="decompose-row"><div class="decompose-num">4</div><input type="text" class="decompose-input" id="step4" placeholder="" oninput="updateProgress()"></div>
+      <div class="decompose-row"><div class="decompose-num">5</div><input type="text" class="decompose-input" id="step5" placeholder="마지막 단계 (통합 + 테스트)..." oninput="updateProgress()"></div>
+    </div>
+
+    <div class="field-label">1단계 AI 요청문 (Vol.1 공식 적용)</div>
+    <textarea id="step1_req" rows="5"
+      placeholder="맥락 + 원하는 것 + 제약 조건 + 성공 기준을 담아 1단계에 대한 실제 요청을 작성한다..."
+      oninput="updateProgress()"></textarea>
+    <div class="char-count" id="step1_count">0 자</div>
+  </div>
+</section>
+
+<!-- SECTION 3 — 실전 기록 -->
+<div class="divider"><div class="divider-line"></div></div>
+
+<section class="section" id="s3">
+  <div class="sec-label">03 · 실전</div>
+  <h2 class="sec-title">지금 바로 <em>AI와 함께 진행한다</em></h2>
+  <p class="sec-desc">
+    설계를 완성했으면 지금 바로 AI에게 1단계 요청을 보낸다.<br>
+    각 단계가 끝날 때마다 아래에 기록한다. 막힌 것도 기록한다.
+  </p>
+
+  <div class="exercise-box">
+    <div class="ex-header">
+      <div class="ex-num">실전 A</div>
+      <div class="ex-title">실행 로그</div>
+    </div>
+    <div class="ex-prompt">
+      <span class="prompt-label">진행 방법</span>
+      각 단계를 AI와 함께 진행하면서 아래를 채운다.
+      완벽하게 되지 않아도 괜찮다. 기록이 더 중요하다.
+    </div>
+
+    <div class="field-label">1단계 결과 (요청 후 어떻게 됐나)</div>
+    <textarea id="log1" rows="3" placeholder="잘 됐다 / 이렇게 수정했다 / 여기서 막혔다..." oninput="updateProgress()"></textarea>
+
+    <div class="field-label">2단계 결과</div>
+    <textarea id="log2" rows="3" placeholder="" oninput="updateProgress()"></textarea>
+
+    <div class="field-label">3단계 결과</div>
+    <textarea id="log3" rows="3" placeholder="" oninput="updateProgress()"></textarea>
+
+    <div class="field-label">가장 막혔던 지점과 어떻게 해결했나</div>
+    <textarea id="blocker" rows="4"
+      placeholder="막힌 내용, 시도한 것, 결국 어떻게 해결했는지 또는 아직 해결 못 했는지..."
+      oninput="updateProgress()"></textarea>
+    <div class="char-count" id="blocker_count">0 자</div>
+  </div>
+</section>
+
+<!-- SECTION 4 — 회고 -->
+<div class="divider"><div class="divider-line"></div></div>
+
+<section class="section" id="s4">
+  <div class="sec-label">04 · 회고</div>
+  <h2 class="sec-title">한 번 더 <em>더 잘 할 수 있다</em></h2>
+  <p class="sec-desc">
+    완성했든 못 했든, 이번 실전에서 무엇을 배웠는지 정리한다.<br>
+    다음 시도는 반드시 더 빠르고 정확해진다.
+  </p>
+
+  <div class="retro-board">
+    <div class="retro-title">회고 보드</div>
+    <div class="retro-cols">
+      <div class="retro-col">
+        <div class="retro-col-label">✓ 잘 됐던 것</div>
+        <textarea class="retro-textarea" id="retro_good" placeholder="이번에 효과가 있었던 요청/접근 방식..." oninput="updateProgress()"></textarea>
+      </div>
+      <div class="retro-col">
+        <div class="retro-col-label">✕ 막혔던 것</div>
+        <textarea class="retro-textarea" id="retro_bad" placeholder="다음엔 다르게 해야 할 것..." oninput="updateProgress()"></textarea>
+      </div>
+      <div class="retro-col">
+        <div class="retro-col-label">→ 다음엔</div>
+        <textarea class="retro-textarea" id="retro_next" placeholder="다음 실전에서 바꿀 것 하나..." oninput="updateProgress()"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="exercise-box">
+    <div class="ex-header">
+      <div class="ex-num">마무리</div>
+      <div class="ex-title">시리즈 완주 소감</div>
+    </div>
+
+    <div class="field-label">Vol.0 때 나의 상태와 지금의 차이</div>
+    <textarea id="growth" rows="4"
+      placeholder="무엇이 달라졌는가? 어떤 것이 더 잘 되는가? 아직 부족한 것은?"
+      oninput="updateProgress()"></textarea>
+
+    <div class="field-label">다음으로 만들고 싶은 것</div>
+    <input type="text" id="next_project" placeholder="다음 프로젝트가 무엇인지 한 줄로" oninput="updateProgress()">
+
+    <div class="field-label" style="margin-top: 20px;">바이브코딩 훈련소 Vol.0–5를 완주한 소감</div>
+    <textarea id="final_note" rows="4" placeholder="자유롭게..." oninput="updateProgress()"></textarea>
+
+    <div class="checklist" style="margin-top: 16px;">
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box">✓</div>
+        <span>이제 AI에게 요청할 때 4가지 재료를 생각한다</span>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box">✓</div>
+        <span>AI 응답에서 주의사항과 질문 섹션을 찾아 읽는다</span>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box">✓</div>
+        <span>만들기 전에 단계를 먼저 분해한다</span>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box">✓</div>
+        <span>에러 메시지를 AI에게 제대로 전달할 수 있다</span>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box">✓</div>
+        <span>AI 결과를 그냥 믿지 않고 검증한다</span>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-primary" onclick="completeVol()">
+    <span>시리즈 완주 🎉</span>
+  </button>
+</section>
+
+<!-- COMPLETION -->
+<section class="completion" id="completion">
+  <div style="font-family: var(--font-mono); font-size: 10px; letter-spacing: 3px; color: var(--accent3); margin-bottom: 20px; text-transform: uppercase;">바이브코딩 훈련소 · 시리즈 완료</div>
+  <h2 class="completion-title">
+    <span class="hl1">Vol.0</span>부터<br>
+    <span class="hl2">Vol.5</span>까지.
+  </h2>
+  <p style="color: var(--text-muted); font-size: 15px; line-height: 2.0; margin-bottom: 8px; max-width: 480px;">
+    자가진단 → 요청 훈련 → 응답 해석 →<br>
+    플로우 구축 → 코딩 기초 → 실전<br><br>
+    <strong style="color: var(--text);">이게 AI와 코딩하는 법이다.</strong><br>
+    이제 하나씩 만들면 된다.
+  </p>
+
+  <div class="series-complete">
+    <div style="font-family: var(--font-mono); font-size: 10px; letter-spacing: 2px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 12px;">완주한 시리즈</div>
+    <div class="series-vols">
+      <div class="series-vol-chip done">Vol.0 · 자가진단</div>
+      <div class="series-vol-chip done">Vol.1 · 요청 훈련</div>
+      <div class="series-vol-chip done">Vol.2 · 응답 해석</div>
+      <div class="series-vol-chip done">Vol.3 · 플로우 구축</div>
+      <div class="series-vol-chip done">Vol.4 · 코딩 기초</div>
+      <div class="series-vol-chip done">Vol.5 · 케이스 실전</div>
+    </div>
+  </div>
+</section>
+
+<script>
+let selectedCaseType = null;
+
+function selectCase(pill, type) {
+  document.querySelectorAll('.case-pill').forEach(p => p.classList.remove('active'));
+  pill.classList.add('active');
+  selectedCaseType = type;
+  updateProgress();
+}
+
+function selectCard(type) {
+  document.querySelectorAll('.case-card').forEach(c => c.classList.remove('selected'));
+  const card = document.getElementById('card-' + type);
+  if (card) card.classList.add('selected');
+  selectedCaseType = type;
+  document.querySelectorAll('.case-pill').forEach(p => {
+    const map = { app: '앱 / 화면 제작', auto: '비서 / 자동화', content: '콘텐츠 생산' };
+    if (p.textContent.includes(map[type] || '')) p.classList.add('active');
+    else p.classList.remove('active');
+  });
+  updateProgress();
+}
+
+function toggleCheck(item) { item.classList.toggle('checked'); updateProgress(); }
+
+function updateProgress() {
+  const fields = ['goal_what', 'goal_done', 'step1', 'step1_req', 'log1', 'retro_good', 'growth'];
+  const filled = fields.filter(id => document.getElementById(id)?.value.length > 0).length;
+  const typeBonus = selectedCaseType ? 1 : 0;
+  const total = fields.length + 1;
+  document.getElementById('progressBar').style.width = ((filled + typeBonus) / total * 100) + '%';
+
+  const el = document.getElementById('step1_req');
+  const cnt = document.getElementById('step1_count');
+  if (el && cnt) cnt.textContent = el.value.length + ' 자';
+
+  const bl = document.getElementById('blocker');
+  const bc = document.getElementById('blocker_count');
+  if (bl && bc) bc.textContent = bl.value.length + ' 자';
+}
+
+function completeVol() {
+  document.getElementById('completion').style.display = 'block';
+  document.getElementById('progressBar').style.width = '100%';
+  setTimeout(() => document.getElementById('completion').scrollIntoView({ behavior: 'smooth' }), 200);
+}
+</script>
+
+
+<style id="nav-bar-style">
+  .site-nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(6,6,9,0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    z-index: 9998;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    height: 52px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    gap: 16px;
+  }
+  .site-nav-left, .site-nav-right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .site-nav-center {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .nav-link {
+    color: rgba(255,255,255,0.25);
+    text-decoration: none;
+    padding: 6px 10px;
+    transition: color 0.15s;
+    font-size: 10px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .nav-link:hover { color: rgba(255,255,255,0.7); }
+  .nav-link.active { color: #fff; }
+  .nav-link.home { color: rgba(255,255,255,0.35); font-size: 14px; padding: 6px 8px; }
+  .nav-link.home:hover { color: #fff; }
+  .nav-sep { color: rgba(255,255,255,0.1); font-size: 10px; }
+  .nav-prev, .nav-next {
+    color: rgba(255,255,255,0.4);
+    text-decoration: none;
+    padding: 6px 12px;
+    border: 1px solid rgba(255,255,255,0.08);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .nav-prev:hover, .nav-next:hover {
+    color: #fff;
+    border-color: rgba(255,255,255,0.25);
+  }
+  .nav-next.primary {
+    color: #fff;
+    border-color: rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.05);
+  }
+  body { padding-bottom: 60px; }
+  @media (max-width: 600px) {
+    .site-nav-center { display: none; }
+    .site-nav { padding: 0 16px; }
+  }
+</style>
+
+<nav class="site-nav">
+  <div class="site-nav-left">
+    <a href="vol4-coding-basics.html" class="nav-prev">← 이전</a>
+  </div>
+  <div class="site-nav-center">
+    <a href="index.html" class="nav-link">홈</a>
+    <span class="nav-sep">·</span>
+    <a href="vol0-self-diagnosis.html" class="nav-link">0</a>
+    <span class="nav-sep">·</span>
+    <a href="vol1-request-training.html" class="nav-link">1</a>
+    <span class="nav-sep">·</span>
+    <a href="vol2-response-reading.html" class="nav-link">2</a>
+    <span class="nav-sep">·</span>
+    <a href="vol3-flow-building.html" class="nav-link">3</a>
+    <span class="nav-sep">·</span>
+    <a href="vol4-coding-basics.html" class="nav-link">4</a>
+    <span class="nav-sep">·</span>
+    <a href="vol5-real-cases.html" class="nav-link active">5</a>
+  </div>
+  <div class="site-nav-right">
+    <span style="width:72px;display:inline-block;"></span>
+  </div>
+</nav>
+
+</body>
+</html>
